@@ -48,7 +48,7 @@ Common variables shared across apps:
 | --- | --- | --- |
 | `VITE_NETWORK` | `testnet` | `testnet` \| `mainnet` (the token issuance also accepts `localnet`) |
 | `VITE_DOCS_URL` | `https://docs.meddleware.co.uk` | User docs base URL |
-| `VITE_DEV_URL` | `https://dev.meddleware.co.uk` | Developer docs base URL |
+| `VITE_DEV_URL` | `https://meddleware.dev` | Developer docs base URL |
 | `VITE_RPC_TESTNET` / `VITE_RPC_MAINNET` | public Mysten fullnodes | gRPC-web endpoint overrides |
 
 Everything else (relay hosts, Seal committee, gate-creation policy, …) is app-specific and

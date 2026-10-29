@@ -83,7 +83,7 @@ All SDKs target `@mysten/sui` v2 and gRPC (public fullnodes no longer serve JSON
 | Service | Source | Hosted instance |
 | --- | --- | --- |
 | access-gate gateway (NFT-gated reverse proxy; Cloudflare Workers or Rust) | [`access-gate-gateway`](https://github.com/meddleware-org/access-gate-gateway) | in front of the Walrus relay |
-| Walrus upload relay (Mysten `walrus-upload-relay`, tip-charging) | upstream binary | `https://sui-walrus-storage-relay-testnet.meddleware.co.uk` (via the gateway; `/v1/tip-config` is public) |
+| Walrus upload relay (Mysten `walrus-upload-relay`, tip-charging) | upstream binary | `https://sui-walrus-storage-relay-testnet.meddleware.dev` (via the gateway; `/v1/tip-config` is public) |
 
 ## Testnet vs mainnet
 

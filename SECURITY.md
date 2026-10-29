@@ -2,7 +2,7 @@
 
 ## Scope
 
-This policy covers the `dev` documentation site (`dev.meddleware.co.uk`): developer and operator
+This policy covers the `dev` documentation site (`meddleware.dev`): developer and operator
 documentation built with VitePress, including the on-chain reference pages generated at build time
 from the published Move packages (`scripts/gen-onchain.mjs`).
 

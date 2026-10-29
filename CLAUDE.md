@@ -1,6 +1,6 @@
 # CLAUDE.md — @meddleware/dev-site
 
-Developer documentation site for `dev.meddleware.co.uk`. VitePress 2.0.0-alpha.20.
+Developer documentation site for `meddleware.dev`. VitePress 2.0.0-alpha.20.
 
 ## Purpose
 
@@ -83,7 +83,7 @@ from the imported on-chain docs; link to them instead of restating tables.
 | Content type | Site |
 | --- | --- |
 | User guides, UI walkthroughs, FAQ | `repos/docs-site/` → `docs.meddleware.co.uk` |
-| SDK install, integration code, self-host | `repos/dev-site/` → `dev.meddleware.co.uk` |
+| SDK install, integration code, self-host | `repos/dev-site/` → `meddleware.dev` |
 | TypeDoc API reference | `repos/docs-site/` → `docs.meddleware.co.uk/blockchain/sui/` |
 
 Cross-links: `dev.` nav has "API reference" pointing to `docs.`; `docs.` service reference pages have `:::tip` callouts into `dev.`.

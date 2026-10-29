@@ -2,29 +2,29 @@
 
 > How to build on Meddleware's Sui and Walrus tooling: TypeScript SDKs, Move packages, PTB patterns, the access-gate gateway protocol and running your own relay or gateway. All repositories are public under 0BSD.
 
-The full text of this site in one file: [llms-full.txt](https://dev.meddleware.co.uk/llms-full.txt). User documentation: [docs.meddleware.co.uk/llms.txt](https://docs.meddleware.co.uk/llms.txt).
+The full text of this site in one file: [llms-full.txt](https://meddleware.dev/llms-full.txt). User documentation: [docs.meddleware.co.uk/llms.txt](https://docs.meddleware.co.uk/llms.txt).
 
 ## Getting started
 
-- [Overview](https://dev.meddleware.co.uk/)
-- [Getting started](https://dev.meddleware.co.uk/getting-started/), [toolchain](https://dev.meddleware.co.uk/getting-started/toolchain), [local development](https://dev.meddleware.co.uk/getting-started/local-dev)
-- [Sui environment](https://dev.meddleware.co.uk/sui/environment), [PTB patterns](https://dev.meddleware.co.uk/sui/ptb-patterns)
+- [Overview](https://meddleware.dev/)
+- [Getting started](https://meddleware.dev/getting-started/), [toolchain](https://meddleware.dev/getting-started/toolchain), [local development](https://meddleware.dev/getting-started/local-dev)
+- [Sui environment](https://meddleware.dev/sui/environment), [PTB patterns](https://meddleware.dev/sui/ptb-patterns)
 
 ## Products
 
-- [Walrus Storage](https://dev.meddleware.co.uk/sui/walrus-storage/): [integration](https://dev.meddleware.co.uk/sui/walrus-storage/integration), [run your own upload relay](https://dev.meddleware.co.uk/sui/walrus-storage/relay-self-host); SDK `@meddleware/walrus-storage-client`
-- [Sealed Storage](https://dev.meddleware.co.uk/sui/sealed-storage/): [integration](https://dev.meddleware.co.uk/sui/sealed-storage/integration), [policies](https://dev.meddleware.co.uk/sui/sealed-storage/policies); SDK `@meddleware/sealed-storage-client`
-- [Access Gate](https://dev.meddleware.co.uk/sui/access-gate/): [integration](https://dev.meddleware.co.uk/sui/access-gate/integration), [gateway and wire protocol](https://dev.meddleware.co.uk/sui/access-gate/gateway); SDKs `@meddleware/access-gate-client`, `@meddleware/access-gate-gateway-client`
-- Token Issuance: [overview](https://dev.meddleware.co.uk/sui/onchain/token-issuance/overview), [developer guide](https://dev.meddleware.co.uk/sui/onchain/token-issuance/dev-guide), [API reference](https://dev.meddleware.co.uk/sui/onchain/token-issuance/api-reference); SDK `@meddleware/token-issuance-client`
+- [Walrus Storage](https://meddleware.dev/sui/walrus-storage/): [integration](https://meddleware.dev/sui/walrus-storage/integration), [run your own upload relay](https://meddleware.dev/sui/walrus-storage/relay-self-host); SDK `@meddleware/walrus-storage-client`
+- [Sealed Storage](https://meddleware.dev/sui/sealed-storage/): [integration](https://meddleware.dev/sui/sealed-storage/integration), [policies](https://meddleware.dev/sui/sealed-storage/policies); SDK `@meddleware/sealed-storage-client`
+- [Access Gate](https://meddleware.dev/sui/access-gate/): [integration](https://meddleware.dev/sui/access-gate/integration), [gateway and wire protocol](https://meddleware.dev/sui/access-gate/gateway); SDKs `@meddleware/access-gate-client`, `@meddleware/access-gate-gateway-client`
+- Token Issuance: [overview](https://meddleware.dev/sui/onchain/token-issuance/overview), [developer guide](https://meddleware.dev/sui/onchain/token-issuance/dev-guide), [API reference](https://meddleware.dev/sui/onchain/token-issuance/api-reference); SDK `@meddleware/token-issuance-client`
 
 ## Move packages (API references)
 
-- [access_gate](https://dev.meddleware.co.uk/sui/onchain/access-gate/api-reference) ([developer guide](https://dev.meddleware.co.uk/sui/onchain/access-gate/dev-guide))
-- [sealed_storage](https://dev.meddleware.co.uk/sui/onchain/sealed-storage/api-reference) ([developer guide](https://dev.meddleware.co.uk/sui/onchain/sealed-storage/dev-guide))
+- [access_gate](https://meddleware.dev/sui/onchain/access-gate/api-reference) ([developer guide](https://meddleware.dev/sui/onchain/access-gate/dev-guide))
+- [sealed_storage](https://meddleware.dev/sui/onchain/sealed-storage/api-reference) ([developer guide](https://meddleware.dev/sui/onchain/sealed-storage/dev-guide))
 
 ## Design system
 
-- [Overview](https://dev.meddleware.co.uk/design-system/), [tokens](https://dev.meddleware.co.uk/design-system/tokens), [components](https://dev.meddleware.co.uk/design-system/components)
+- [Overview](https://meddleware.dev/design-system/), [tokens](https://meddleware.dev/design-system/tokens), [components](https://meddleware.dev/design-system/components)
 
 ## Optional
 

@@ -1,8 +1,8 @@
 {
   "name": "@meddleware/dev-site",
   "version": "0.0.31",
-  "description": "Meddleware developer documentation site (dev.meddleware.co.uk) — VitePress. Integration guides, design system usage, and Sui development patterns.",
-  "homepage": "https://dev.meddleware.co.uk/",
+  "description": "Meddleware developer documentation site (meddleware.dev) — VitePress. Integration guides, design system usage, and Sui development patterns.",
+  "homepage": "https://meddleware.dev/",
   "author": "Meddleware <dev@meddleware.co.uk>",
   "license": "0BSD",
   "repository": {
@@ -29,7 +29,7 @@
   "scripts": {
     "gen:onchain": "node scripts/gen-onchain.mjs",
     "dev": "npm run gen:onchain && vitepress dev docs",
-    "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && node scripts/gen-llms-full.mjs https://dev.meddleware.co.uk \"Meddleware developer documentation\" && node scripts/check-dist-no-audit.mjs",
+    "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && node scripts/gen-llms-full.mjs https://meddleware.dev \"Meddleware developer documentation\" && node scripts/check-dist-no-audit.mjs",
     "preview": "vitepress preview docs",
     "type-check": "tsc --noEmit",
     "lint:css": "stylelint \"docs/.vitepress/**/*.{css,vue}\"",

@@ -6,7 +6,7 @@ that signs and executes a `Transaction` (in a Vue app: `buildExecutor()` from
 
 ## Uploading through the NFT-gated relay
 
-Meddleware's relay, `https://sui-walrus-storage-relay-testnet.meddleware.co.uk`, is the Mysten
+Meddleware's relay, `https://sui-walrus-storage-relay-testnet.meddleware.dev`, is the Mysten
 `walrus-upload-relay` behind an [access-gate gateway](/sui/access-gate/gateway). Uploads need a
 wallet-signed access proof; `GET /v1/tip-config` is public.
 
@@ -19,7 +19,7 @@ import type { Transaction } from '@mysten/sui/transactions'
 import { consumeStorageKey, createGatedAccess, runBlobUpload } from '@meddleware/walrus-storage-client/flow'
 import { buildConsumeTx } from '@meddleware/access-gate-client'
 
-const RELAY = 'https://sui-walrus-storage-relay-testnet.meddleware.co.uk'
+const RELAY = 'https://sui-walrus-storage-relay-testnet.meddleware.dev'
 
 const access = createGatedAccess<Transaction>({
   storage: localStorage,
@@ -61,7 +61,7 @@ returns a token to pass as `createWalrusClient({ uploadRelayAuthToken })`:
 ```ts
 import { createRelayAccessToken, createWalrusClient } from '@meddleware/walrus-storage-client'
 
-const RELAY = 'https://sui-walrus-storage-relay-testnet.meddleware.co.uk' // as above
+const RELAY = 'https://sui-walrus-storage-relay-testnet.meddleware.dev' // as above
 
 const token = await createRelayAccessToken({
   relayHost: RELAY,
