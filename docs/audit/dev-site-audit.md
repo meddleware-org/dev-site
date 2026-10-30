@@ -16,7 +16,7 @@
 **Deployed by:** `post-bootstrap/dev-site/overlays/default`; digest from `config/images.yaml`
 **Build args:** `CSP` only (the Content-Security-Policy string) — not secret, not a test switch; no `VITE_*`
 **Deployment status:** npm v0.0.23 and image `quay.io/meddleware-org/dev-site` 0.0.23 serving `dev.meddleware.co.uk` (`sha256:e94eed83…57d6`; release tag `v0.0.23` = `497bb5d`; released, signature verified and deployed 2026-10-18, rollout succeeded; 0.0.22 `sha256:dfad63d6…` was deployed 2026-10-09; live headers, `/sui/` (200), an unknown path (404) and `/THIRD_PARTY_LICENSES` (200) re-checked 2026-10-18; live `/sui/` carries the republished testnet ids `access_gate` `0xd7ddaa94…`, PlatformConfig `0x3f81489d…`, `seal_policies` `0x0c8f7349…`, PolicyConfig `0xee0403ba…`)
-**Review date:** 2026-10-03 (first pass) · re-verified 2026-10-09 · fixes 2026-10-18 (0.0.23, released and deployed); 0.0.32 re-verified 2026-10-30 (Point the developer-docs and indexer links at the machine zone (ADR-0005); current @meddleware packages)
+**Review date:** 2026-10-03 (first pass) · re-verified 2026-10-09 · fixes 2026-10-18 (0.0.23, released and deployed); 0.0.32 re-verified 2026-10-30 (Point the developer-docs and indexer links at the machine zone (ADR-0005); current @meddleware packages); 0.0.33 re-verified 2026-10-30 (Dependency updates (minor and patch groups) and workflow action bumps)
 **Reviewer:** Internal review
 **Severity ceiling:** Low — static content. Its code samples are copied into other people's apps, so a sample that teaches an unsafe pattern is the realistic harm.
 **Status:** re-verified 2026-10-09; 0.0.23 fixes applied 2026-10-18 (commit `6de2998`; released and deployed 2026-10-18, signature verified, rollout succeeded)
