@@ -1,5 +1,9 @@
 # Changelog — @meddleware/dev
 
+## 0.0.32 — 2026-10-30
+
+- Point the developer-docs and indexer links at the machine zone (ADR-0005); current @meddleware packages.
+
 ## 0.0.26 (2026-10-22)
 
 ### Security
