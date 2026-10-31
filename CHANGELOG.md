@@ -1,5 +1,9 @@
 # Changelog — @meddleware/dev
 
+## 0.0.34 — 2026-10-31
+
+- Shared VitePress theme and accessibility gates
+
 ## 0.0.33 — 2026-10-30
 
 - Dependency updates (minor and patch groups) and workflow action bumps. No source change.

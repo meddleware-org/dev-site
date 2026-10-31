@@ -16,6 +16,13 @@ Developer-facing integration guides, SDK references, and self-host instructions.
 - No white-label operator guides — positions annotated only (see below).
 - No user-facing product documentation — that lives in `repos/docs-site/`.
 
+## Theme and browser tests
+
+The theme is `@meddleware/vitepress-theme` (`docs/.vitepress/theme/index.ts` re-exports it) and `docs/.vitepress/config.ts` is its `baseConfig`
+with this site's nav and sidebar; the site has no stylesheet or layout of its own. `npm run test:e2e` builds the site and runs the shared
+accessibility sweep (WCAG 2.2 AA and AAA in every colour mode × season, reflow, text size, forced colours, keyboard) over the pages in
+`e2e/pages.ts`; `E2E_BROWSERS=all` runs five browsers (CI does).
+
 ## Build
 
 ```bash
@@ -38,8 +45,8 @@ No `gen:api` (TypeDoc) step. The only prebuild is `gen:onchain` (run automatical
 
 ### Checks (CI = `node-ci.yml`; both release workflows call it, so a tag cannot skip one)
 
-- audit gate (`.github/audit-gate.mjs`), `type-check`, `npm test`, the three linters (`lint:css`,
-  `lint:js`, `lint:html`), `build`, `check:licenses`; the image build also runs
+- audit gate (`.github/audit-gate.mjs`), `type-check`, `npm test`, the linter (`lint:js`:
+  the site is Markdown plus its scripts and e2e specs), `build`, `check:licenses`; the image build also runs
   `scripts/check-csp-inline.mjs` against the CSP in the `Dockerfile`.
 - **On-chain ids are checked, not generated.** Hand-written pages carry the testnet ids of
   `access_gate` / `sealed_storage` (`docs/sui/index.md` table) and the Seal key-server object ids.

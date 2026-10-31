@@ -1,6 +1,6 @@
 {
   "name": "@meddleware/dev-site",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "Meddleware developer documentation site (meddleware.dev) — VitePress. Integration guides, design system usage, and Sui development patterns.",
   "homepage": "https://meddleware.dev/",
   "author": "Meddleware <dev@meddleware.co.uk>",
@@ -32,46 +32,45 @@
     "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && node scripts/gen-llms-full.mjs https://meddleware.dev \"Meddleware developer documentation\" && node scripts/check-dist-no-audit.mjs",
     "preview": "vitepress preview docs",
     "type-check": "tsc --noEmit",
-    "lint:css": "stylelint \"docs/.vitepress/**/*.{css,vue}\"",
     "lint:js": "eslint .",
-    "lint": "npm run lint:css && npm run lint:js && npm run lint:html",
-    "lint:html": "html-validate \"docs/.vitepress/**/*.vue\"",
+    "lint": "npm run lint:js",
     "licenses": "node scripts/third-party-licenses.mjs",
     "check:licenses": "node scripts/third-party-licenses.mjs --check",
     "check:onchain-ids": "node scripts/check-onchain-ids.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "shots": "SHOTS=1 playwright test",
+    "test:e2e": "npm run build && playwright test",
+    "lhci": "npm run build && lhci autorun"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@meddleware/design-tokens": "^0.1.11",
-    "@meddleware/ui": "^0.1.35"
+    "@meddleware/design-tokens": "^0.1.12",
+    "@meddleware/ui": "^0.1.36",
+    "@meddleware/vitepress-theme": "^0.0.1"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@meddleware/access-gate-client": "^0.0.13",
     "@meddleware/access-gate-gateway-client": "^0.0.22",
     "@meddleware/access-gate-sui": "^0.0.11",
+    "@meddleware/frontend-config": "^0.0.1",
     "@meddleware/sealed-storage-client": "^0.0.26",
     "@meddleware/sealed-storage-sui": "^0.0.11",
     "@meddleware/token-issuance-template-sui": "^1.0.11",
-    "@meddleware/wallet-adapter": "^0.0.19",
-    "@meddleware/walrus-storage-client": "^0.0.33",
+    "@meddleware/wallet-adapter": "^0.0.20",
+    "@meddleware/walrus-storage-client": "^0.0.34",
     "@mysten/seal": "^1.5.2",
     "@mysten/sui": "^2.36.0",
     "@mysten/walrus": "~1.2.37",
+    "@playwright/test": "~1.64.1",
     "@types/node": "~26.6.5",
     "@vue/eslint-config-typescript": "^14.9.0",
     "eslint": "^10.13.0",
     "eslint-plugin-vue": "^10.12.0",
     "eslint-plugin-vuejs-accessibility": "^2.6.3",
-    "html-validate": "^11.17.0",
-    "html-validate-vue": "^9.3.1",
     "jiti": "^2.7.0",
-    "postcss": "^8.5.32",
-    "postcss-html": "^2.0.0",
-    "stylelint": "^17.16.0",
-    "stylelint-config-standard": "^40.0.0",
     "typescript": "~6.0.0",
     "vitepress": "2.0.0-alpha.20",
     "vitest": "~5.0.5",
@@ -82,8 +81,6 @@
     "node": "^22.18.0 || >=24.12.0"
   },
   "browserslist": [
-    "> 0.5%",
-    "last 2 versions",
-    "not dead"
+    "extends @meddleware/frontend-config/browserslist-config"
   ]
 }

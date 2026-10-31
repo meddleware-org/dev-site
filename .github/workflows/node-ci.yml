@@ -42,14 +42,8 @@ jobs:
       - name: Unit tests (on-chain id check, sample type-check, package contents)
         run: npm test
 
-      - name: Lint CSS (stylelint)
-        run: npm run lint:css
-
       - name: Lint JS (eslint + vuejs-a11y)
         run: npm run lint:js
-
-      - name: Lint HTML (html-validate)
-        run: npm run lint:html
 
       # `vitepress build` fails on dead INTERNAL links by default (ignoreDeadLinks unset), so this
       # step is the internal-strict link gate. The build also fails when an on-chain id typed into a
@@ -60,6 +54,17 @@ jobs:
 
       - name: Third-party licence notices
         run: npm run check:licenses && test -s dist/THIRD_PARTY_LICENSES
+
+      - name: Lighthouse (accessibility 100, best practices, SEO)
+        run: npx lhci autorun
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Browser tests (five browsers, WCAG 2.2 AA and AAA, reflow, keyboard)
+        run: npm run test:e2e
+        env:
+          E2E_BROWSERS: all
 
       # External links: robust (cache + retries + accept rate-limit/partial), non-blocking on PRs so
       # transient third-party downtime can't fail an unrelated docs change. The scheduled job below

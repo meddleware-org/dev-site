@@ -27,6 +27,8 @@ The three shell components share an identical prop API:
 | `docsUrl` | `string` | — | `AppFooter` only — "Documentation" link href |
 | `devUrl` | `string` | — | `AppFooter` only — "Developer docs" link href |
 
+Below 45em the sidebar becomes a drawer (the Popover API): give `AppSidebar` an `id` and pass it as `AppHeader`'s `sidebar-id`, and the header shows a menu button that opens it. `UiAppShell` is the page frame around them: a skip link, the header, an optional sidebar, `<main>` and the footer.
+
 ### Slots
 
 `AppHeader` and `AppSidebar` expose named slots for custom content:
@@ -70,13 +72,24 @@ mode.value = 'dark'               // sets data-theme="dark" on <html>, persists 
 
 | Component | Props | Notes |
 | --- | --- | --- |
-| `UiButton` | native `<button>` attrs | Styled with `--accent`, `--focus-ring`, `--transition-base` |
-| `UiCard` | — | `--surface` background, `--border`, `--radius` |
+| `UiButton` | `variant` (`primary`, `secondary`, `ghost`, `danger`, `link`), `size` (`md`, `sm`), `busy`, `disabled`, `href` | A `<button>` (an `<a>` with `href`); `busy` shows a spinner, sets `aria-busy` and blocks clicks |
+| `UiCard` | `title`, `as` (`section`, `article`, `li`), `level` (heading rank), `plain`, `href` | `--surface` background, `--border`, `--radius`; `href` makes the whole card a link through its title |
+| `UiBadge` | `tone` (`ok`, `warn`, `danger`, `info`, `neutral`, `accent`), `symbol` | Body-colour text with the tone as the border and a symbol, so meaning never rests on colour alone |
+| `UiNotice` | `type` (`info`, `warning`, `error`, `ok`), `message`, `as` (`p`, `div`) | `error` is an alert, the others are polite status messages |
 | `UiSelect` | native `<select>` attrs | Styled with scale tokens; `--focus-ring` on focus |
-| `UiNotice` | `variant: 'info' \| 'warning' \| 'danger' \| 'ok'` | Uses status role tokens |
-| `SidebarItem` | `label`, `icon?`, `active?`, `disabled?` | Navigation item for `AppSidebar` |
+| `SidebarItem` | `label`, `icon?`, `active?`, `disabled?`, `href?` | Navigation item for `AppSidebar`; a real link with `href` |
 | `CopyableAddress` | `address`, `truncate?`, `chars?`, `label?` | Copy-to-clipboard with icon; slot for link |
 | `ExplorerLink` | `href`, `value?` | External block-explorer link; compose inside `CopyableAddress` |
+
+### Forms, data and status
+
+| Component | Notes |
+| --- | --- |
+| `UiTextField`, `UiSelectField`, `UiCheckField`, `UiDateTimeField`, `UiFileField` | A control with its label, hint and error associated (`id`, `aria-invalid`, `aria-describedby`); `UiDateTimeField` exchanges ISO instants in a chosen time zone |
+| `UiDataTable` | `<th>` cells in the `head` slot (never a `<tr>`), rows in the default slot, `rows` and `empty` for the empty state, `caption` for the name; scrolls inside its own focusable box |
+| `UiStatGrid` / `UiStatRow` | A description list of label/value pairs |
+| `UiStepper`, `UiMeter`, `UiPager`, `UiLiveStatus`, `UiEmptyState` | A wizard or progress list, a labelled `<meter>`, previous/next paging, an always-mounted status region, "nothing here yet" |
+| `UiDialog` | The native `<dialog>`, dismissed by Escape and a click outside |
 
 ### Copy + link pattern
 
@@ -97,9 +110,9 @@ const url = suiExplorerUrl('txblock', txDigest, 'testnet')
 
 Supported kinds: `'account'`, `'object'`, `'txblock'`. Network defaults to `'testnet'`.
 
-## CSS utilities (`base.css`)
+## CSS utilities (`reset.css`)
 
-Import `@meddleware/ui/base.css` to get element-level defaults and opt-in utility classes:
+Import `@meddleware/ui/reset.css` once to get element-level defaults (in the `mw.reset` cascade layer) and opt-in utility classes. Components bring their own CSS, imported with the component; `@meddleware/ui/base.css` (the reset plus every component) still works for the old single import.
 
 | Class | Effect |
 | --- | --- |
@@ -107,5 +120,6 @@ Import `@meddleware/ui/base.css` to get element-level defaults and opt-in utilit
 | `.mw-spinner` | Sigil-like ring loader animation (settles on `prefers-reduced-motion`) |
 | `.mw-hand-drawn` | Empty positioned hook — drop an `<svg>` or `<canvas>` inside for bespoke illustration |
 | `.mw-mono` | Monospace font via `--mw-font-mono` |
+| `.mw-visually-hidden` | Text for assistive technology only |
 
 All animations respect `prefers-reduced-motion`.

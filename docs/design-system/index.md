@@ -17,7 +17,7 @@ Import the CSS once at your app entry point:
 // src/main.ts
 import '@meddleware/design-tokens/tokens.css'   // required — registers CSS custom properties
 import '@meddleware/design-tokens/seasons.css'  // optional — data-season="spring|summer|autumn|winter"
-import '@meddleware/ui/base.css'                // optional — element defaults + scale + utilities
+import '@meddleware/ui/reset.css'                // required once — element defaults, the focus ring, utilities (each component brings its own CSS)
 import { createApp } from 'vue'
 import App from './App.vue'
 
@@ -47,6 +47,8 @@ See [Design tokens](./tokens) for full usage, and [Components](./components) for
 ## Light / dark mode
 
 `useColorMode` from `@meddleware/ui` manages the `data-theme="dark"` attribute on `<html>` and persists to localStorage. All semantic tokens flip automatically.
+
+To avoid a flash of the wrong theme while the app loads, apply the saved (or default) mode before the first paint with `@meddleware/ui/theme-init.js`, a tiny same-origin script for the page's `<head>` (so a strict CSP needs no hash). Vite apps get it, the `color-scheme` and `theme-color` tags from `themeInit()` in `@meddleware/frontend-config/vite`.
 
 ```vue
 <script setup>

@@ -7,3 +7,8 @@ docs/.vitepress/cache
 # Generated canonical on-chain docs + sidebar (produced by `npm run gen:onchain` at build time)
 docs/sui/onchain/
 docs/.vitepress/generated/
+
+test-results/
+
+# Lighthouse CI
+.lighthouseci/
