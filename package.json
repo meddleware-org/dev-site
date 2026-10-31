@@ -82,5 +82,10 @@
   },
   "browserslist": [
     "extends @meddleware/frontend-config/browserslist-config"
-  ]
+  ],
+  "overrides": {
+    "basic-ftp": "^6.2.4",
+    "tmp": "^0.2.7",
+    "zod": "^4.6.7"
+  }
 }
