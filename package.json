@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@meddleware/design-tokens": "^0.1.12",
-    "@meddleware/ui": "^0.1.36",
+    "@meddleware/ui": "^0.1.37",
     "@meddleware/vitepress-theme": "^0.0.1"
   },
   "devDependencies": {
