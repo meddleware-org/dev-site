@@ -3,7 +3,7 @@
 **Classification:** Internal security review
 **Project:** `repos/dev-site` — `@meddleware/dev-site`, VitePress developer documentation (`dev.meddleware.co.uk`): integration guides, PTB patterns, gateway and relay self-hosting, design system, imported on-chain developer pages
 **Project type:** Static site (VitePress)
-**Template:** AUDIT_TEMPLATE.md (2026-10-08) + AUDIT_TEMPLATE_TS.md (2026-10-08) + AUDIT_TEMPLATE_VUE.md (2026-10-08, hosting-header rows) + AUDIT_TEMPLATE_IMG.md (2026-10-08) + AUDIT_TEMPLATE_SITE.md (2026-09-30) + AUDIT_TEMPLATE_A11Y.md (2026-11-01)
+**Template:** AUDIT_TEMPLATE.md (2026-11-01) + AUDIT_TEMPLATE_TS.md (2026-11-01) + AUDIT_TEMPLATE_VUE.md (2026-10-08, hosting-header rows) + AUDIT_TEMPLATE_IMG.md (2026-10-08) + AUDIT_TEMPLATE_SITE.md (2026-09-30) + AUDIT_TEMPLATE_A11Y.md (2026-11-01)
 **Package manager / lockfile:** npm 11, committed (also copied into the image for SBOM tools)   **Module format:** ESM (build scripts `.mjs`, VitePress config and theme TypeScript)   **Publish model:** image + npm package (ships `docs/`, `scripts/` and config; `NPM_PUBLISH` opt-in, enabled — `@meddleware/dev-site` 0.0.23 is on npm)
 **Runtime targets:** browser (static HTML); Node 24 for the build   **Peer dependencies:** none
 **Generator:** vitepress 2.0.0-alpha.20 (vue 3.5.44, TypeScript 6.0.3); vitest 5.0.5 (unit tests); no TypeDoc step (the API reference is on `docs.`)
