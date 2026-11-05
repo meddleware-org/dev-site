@@ -31,8 +31,12 @@
 --info            /* informational (blue) */
 --focus-ring      /* keyboard focus indicator */
 --highlight       /* text emphasis (yellow) */
---bg  --surface  --text  --muted  --border  --lift
+--bg  --surface  --text  --muted  --lift
+--border          /* dividers and decoration only (1.3–1.4:1) */
+--control-border  /* the edge of a text field, textarea or select: 3:1 on every canvas (WCAG 1.4.11) */
 ```
+
+**Contrast is gated.** `npm run check:contrast` in the package measures every role pairing in all ten theme × season looks: text and labels at 7:1 (WCAG AAA) on `--bg`, `--surface` and `--lift`; the focus ring, `--control-border` and the graphical fills at 3:1. A new semantic role fails the gate unless a pairing measures it (or it is listed as exempt with a reason). Use `--warning-text` for text in the warning tone; `--warning` is a fill.
 
 ## Sacred-geometry scales
 
@@ -41,6 +45,7 @@ All spacing and type sizes are derived from the golden ratio (φ = 1.618) via `c
 ### Spacing (Fibonacci)
 
 ```css
+--space-4xs:  0.125rem  /* 2px — hairline gaps (half a unit) */
 --space-3xs:  0.25rem   /* 4px  */
 --space-2xs:  0.5rem    /* 8px  */
 --space-xs:   0.75rem   /* 12px */
@@ -55,13 +60,18 @@ All spacing and type sizes are derived from the golden ratio (φ = 1.618) via `c
 ### Type scale (φ-derived modular)
 
 ```css
+--font-size-xs:    ≈ 0.618rem   /* base ÷ φ */
+--font-size-2xs:   ≈ 0.702rem   /* between xs and sm: console density */
+--font-size-sm:    ≈ 0.786rem   /* base ÷ φ^½ */
 --font-size-base:  1rem
---font-size-sm:    calc(var(--font-size-base) / var(--ratio-phi-root))  /* ~0.787rem */
---font-size-lg:    calc(var(--font-size-base) * var(--ratio-phi-root))  /* ~1.272rem */
---font-size-xl:    calc(var(--font-size-base) * var(--ratio-phi))       /* ~1.618rem */
---font-size-2xl:   calc(var(--font-size-xl)   * var(--ratio-phi))       /* ~2.618rem */
---font-size-3xl:   calc(var(--font-size-2xl)  * var(--ratio-phi))       /* ~4.236rem */
+--font-size-md:    ≈ 1.272rem   /* base × φ^½ */
+--font-size-lg:    ≈ 1.618rem   /* base × φ */
+--font-size-xl:    ≈ 2.058rem
+--font-size-2xl:   ≈ 2.618rem   /* base × φ² */
+--font-size-3xl:   ≈ 3.33rem
 ```
+
+Also `--leading-tight|normal|relaxed|loose`, `--tracking-tight|normal|wide`, and the weights `--font-weight-regular` (400), `-medium` (500), `-semibold` (600), `-brand` (650), `-bold` (700).
 
 ### Ratios and splits
 
@@ -120,9 +130,24 @@ Not importing `seasons.css` is a valid opt-out — every role uses its light/dar
 --noise-opacity: 0.035
 --hero-offset       /* φ-derived horizontal offset for intentional asymmetry */
 --gap-irregular     /* slightly non-uniform gap for human presence */
---transition-base: 140ms cubic-bezier(0.2, 0, 0.2, 1)
---transition-slow: 320ms cubic-bezier(0.2, 0, 0.2, 1)
+--duration-fast: 100ms   --duration-base: 140ms   --duration-slow: 320ms
+--ease-human: cubic-bezier(0.2, 0, 0.2, 1)
+--transition-base: var(--duration-base) var(--ease-human)
+--transition-slow: var(--duration-slow) var(--ease-human)
 ```
+
+## Shape, depth and layering
+
+```css
+--radius-xs: 2px   --radius-sm: 6px   --radius: 10px   --radius-lg: 16px
+--shadow-1  --shadow-2  --shadow-3     /* resting card, raised popover, modal dialog (theme-only: they never vary by season) */
+--backdrop                              /* the layer behind a modal dialog */
+--z-below: -1   --z-raised: 1   --z-header: 50   --z-popover: 60   --z-dialog: 70   --z-skip: 100
+--mw-content-narrow: 26rem   --mw-content-prose: 65ch
+--mw-header-height: 56px     --mw-sidebar-width: 240px
+```
+
+The package's `check:css` gate holds `tokens.css` and `seasons.css` to custom properties only (plus `color-scheme`): no rule, no `@import`, no `content`, and one pinned `url()` (the noise overlay), so a compromised release cannot restyle an app.
 
 ## TypeScript / JSON usage
 
@@ -132,5 +157,5 @@ import { primary, ratio, space, semantic } from '@meddleware/design-tokens'
 console.log(primary.red[500])    // "#d92d20"
 console.log(ratio.phi)           // 1.618
 console.log(space.md)            // "2rem"
-console.log(semantic.dark.accent) // "#ef5a4c"
+console.log(semantic.dark.accent) // "#e79475"
 ```

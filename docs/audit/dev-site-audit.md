@@ -3,7 +3,7 @@
 **Classification:** Internal security review
 **Project:** `repos/dev-site` — `@meddleware/dev-site`, VitePress developer documentation (`dev.meddleware.co.uk`): integration guides, PTB patterns, gateway and relay self-hosting, design system, imported on-chain developer pages
 **Project type:** Static site (VitePress)
-**Template:** AUDIT_TEMPLATE.md (2026-10-08) + AUDIT_TEMPLATE_TS.md (2026-10-08) + AUDIT_TEMPLATE_VUE.md (2026-10-08, hosting-header rows) + AUDIT_TEMPLATE_IMG.md (2026-10-08) + AUDIT_TEMPLATE_SITE.md (2026-09-30)
+**Template:** AUDIT_TEMPLATE.md (2026-10-08) + AUDIT_TEMPLATE_TS.md (2026-10-08) + AUDIT_TEMPLATE_VUE.md (2026-10-08, hosting-header rows) + AUDIT_TEMPLATE_IMG.md (2026-10-08) + AUDIT_TEMPLATE_SITE.md (2026-09-30) + AUDIT_TEMPLATE_A11Y.md (2026-11-01)
 **Package manager / lockfile:** npm 11, committed (also copied into the image for SBOM tools)   **Module format:** ESM (build scripts `.mjs`, VitePress config and theme TypeScript)   **Publish model:** image + npm package (ships `docs/`, `scripts/` and config; `NPM_PUBLISH` opt-in, enabled — `@meddleware/dev-site` 0.0.23 is on npm)
 **Runtime targets:** browser (static HTML); Node 24 for the build   **Peer dependencies:** none
 **Generator:** vitepress 2.0.0-alpha.20 (vue 3.5.44, TypeScript 6.0.3); vitest 5.0.5 (unit tests); no TypeDoc step (the API reference is on `docs.`)
@@ -16,7 +16,7 @@
 **Deployed by:** `post-bootstrap/dev-site/overlays/default`; digest from `config/images.yaml`
 **Build args:** `CSP` only (the Content-Security-Policy string) — not secret, not a test switch; no `VITE_*`
 **Deployment status:** npm v0.0.23 and image `quay.io/meddleware-org/dev-site` 0.0.23 serving `dev.meddleware.co.uk` (`sha256:e94eed83…57d6`; release tag `v0.0.23` = `497bb5d`; released, signature verified and deployed 2026-10-18, rollout succeeded; 0.0.22 `sha256:dfad63d6…` was deployed 2026-10-09; live headers, `/sui/` (200), an unknown path (404) and `/THIRD_PARTY_LICENSES` (200) re-checked 2026-10-18; live `/sui/` carries the republished testnet ids `access_gate` `0xd7ddaa94…`, PlatformConfig `0x3f81489d…`, `seal_policies` `0x0c8f7349…`, PolicyConfig `0xee0403ba…`)
-**Review date:** 2026-10-03 (first pass) · re-verified 2026-10-09 · fixes 2026-10-18 (0.0.23, released and deployed); 0.0.32 re-verified 2026-10-30 (Point the developer-docs and indexer links at the machine zone (ADR-0005); current @meddleware packages); 0.0.33 re-verified 2026-10-30 (Dependency updates (minor and patch groups) and workflow action bumps); 0.0.34 re-verified 2026-10-31 (Shared VitePress theme and accessibility gates)
+**Review date:** 2026-10-03 (first pass) · re-verified 2026-10-09 · fixes 2026-10-18 (0.0.23, released and deployed); 0.0.32–0.0.34 released 2026-10-30/31 (developer-docs and indexer links on the machine zone, ADR-0005; dependency bumps; the shared VitePress theme and accessibility gates) — reviewed in the delta entry of 2026-11-05 (F18–F21); 0.0.35 prepared
 **Reviewer:** Internal review
 **Severity ceiling:** Low — static content. Its code samples are copied into other people's apps, so a sample that teaches an unsafe pattern is the realistic harm.
 **Status:** re-verified 2026-10-09; 0.0.23 fixes applied 2026-10-18 (commit `6de2998`; released and deployed 2026-10-18, signature verified, rollout succeeded)
@@ -397,6 +397,30 @@ skip marker, and the packaging rules; `SECURITY.md` invariant 1 says that the ge
 packages and the typed ids are checked at build time (F6), and a new invariant 4 covers the sample
 type-check and the audit never reaching `dist/` or the package.
 
+### F18 — The inline-script CSP check ran only in the image build, not in CI
+**Severity:** Low   **Disposition:** RESOLVED (0.0.35)
+**Where:** `scripts/check-csp-inline.mjs`; `.github/workflows/node-ci.yml`; the `Dockerfile` `ARG CSP`.
+**Issue / Impact / Remediation:** the same defect and fix as docs-site F25: the inline-script hash check ran only inside `docker build` (a late, release-blocking failure), and the checker accepted `'unsafe-inline'` and an empty `dist/`. `npm run check:csp` now reads the Dockerfile's CSP default and runs in CI after the build; it fails on `'unsafe-inline'`, on no HTML file and on a missing default.
+**Evidence:** `check:csp` passes on the built `dist/` (run 2026-11-05 after the five-browser build).
+
+### F19 — The shared theme's footer lay under the fixed sidebar; VitePress moves to alpha.21 with the theme
+**Severity:** Medium   **Disposition:** RESOLVED (0.0.35, with `@meddleware/vitepress-theme` 0.0.2)
+**Where:** `@meddleware/vitepress-theme` `MeddlewareLayout.vue`; `package.json` (`vitepress` exact `2.0.0-alpha.21`).
+**Issue / Impact:** the 0.0.34 move to the shared theme left the footer's legal links hidden behind VitePress's fixed sidebar on pages that have one (WCAG 2.4.11); found by the shared sweep once its keyboard walk followed element identity (frontend-config F2, vitepress-theme F9, docs-site F26). The theme's peer is an exact VitePress, so this site moves to alpha.21 with it (Dependabot PR superseded).
+**Evidence:** with the 0.0.2 theme packed locally the five-browser e2e with the CI font passes except one WebKit timeout (below, F21): 399 of 400 on the first run.
+
+### F20 — The design-system pages described an older API and token set
+**Severity:** Low   **Disposition:** RESOLVED (0.0.35)
+**Where:** `docs/design-system/{index,tokens,components}.md`.
+**Issue:** the pages — the public reference for the `ui` and `design-tokens` packages — drifted from the released packages: the shell components' slots and `variant` defaults (`AppHeader`/`AppSidebar` default `dark`, `AppFooter` `transparent`; the `brand` slot, no wrapper), `suiExplorerUrl` examples that named a different explorer than the code builds (SuiVision for chain objects; `walruscanBlobUrl` for blobs), a `semantic.dark.accent` value that was not the shipped one, and no mention of `--control-border`, the `-2xs`/`-4xs` scale steps, motion, shape, depth and layering tokens, the contrast gate, `UiFieldHint`, the dialog scroll tab stop, `web-utils`, `frontend-config` or `vitepress-theme`.
+**Impact:** integrators following the pages would write a `#logo` slot that is never rendered, expect the wrong explorer host, and miss the form-control edge token (WCAG 1.4.11).
+**Remediation / evidence:** the three pages were rewritten against the released sources (the component files' props and slots, `tokens.css`, `check-contrast.mjs`, `web-utils`' link helpers). Not machine-checked: unlike docs-site, no generator ties these pages to the packages, so they can drift again (noted in the log entry of 2026-11-05).
+
+### F21 — The WebKit keyboard test of a 100-stop page exceeded the default 30 s
+**Severity:** Info   **Disposition:** RESOLVED (`frontend-config` 0.0.2)
+**Where:** the shared sweep's keyboard test (`frontend-config` `a11y.js`), here on `/design-system/tokens`.
+**Issue / Evidence:** the walk probes every tab stop forward and backward and WebKit animates each focus scroll: the tokens page took 32.7 s in WebKit (passed with a longer limit). The test's limit now scales with the stop cap (`max(60 s, 400 ms × maxStops)`), recorded in frontend-config's changelog.
+
 ## Section A — Invariant verification matrix
 
 | # | Invariant | Enforced at | Proven by | Status |
@@ -660,3 +684,4 @@ None.
 - 2026-10-24 — repository renamed from `dev` to `dev-site` (workspace naming convention, `docs/architecture/ADR-0003-naming.md`): package, image, host and path names updated throughout. No finding, disposition or evidence changed.
 - 2026-10-24 — identifier alignment (`docs/architecture/ADR-0004-identifier-alignment.md`): protocol pages updated (`access-gate-gateway:access:v3`, `Via: 1.1 access-gate-gateway`, `sealed_storage`, `token_issuance_template`).
 - 2026-10-24 — `robots.txt`, curated `llms.txt`, and `llms-full.txt` generated after `vitepress build` from the published pages only (audit and generated API pages excluded; `check-dist-no-audit.mjs` still runs last). Build verified.
+- 2026-11-05 — delta review of 0.0.32–0.0.34 plus the unreleased 0.0.35 changes (the 2026-10-30/31 marks were release-tool lines). Read the new config and theme entry, `e2e/` (the shared sweep over five pages: home, getting started, the design-system index, tokens and components), `check-csp-inline.mjs`, the workflows, the lockfile diff and the design-system pages against the released packages. **New:** F18 (CSP check only in the image build), F19 (footer under the sidebar; VitePress alpha.21), F20 (design-system pages drifted from the released API), F21 (WebKit keyboard test over 30 s). Ran with local packs of the 0.0.35 dependencies: audit gate, `tsc`, lint, unit, `npm run build`, and the five-browser e2e with the CI font: 399 of 400 on the first run, the failure being F21, which then passed with a longer limit (32.7 s). Not re-run: Lighthouse and the blocking link check (CI), a re-run of the whole suite on the packed `frontend-config` with the F21 timeout (the one test was re-run). Lens check: **A11Y applies (●)** and is added to the template line (AA and AAA in ten looks, reflow, text size, forced colours, reduced motion, keyboard with focus-not-obscured: all pass on five projects); the TS first-party shared-tooling row is met as in docs-site; VUE hosting-header rows unchanged; base, TS and VUE dates re-cited to the 2026-11-01 registry. Open question: the design-system pages have no generator tying them to the packages (F20) — worth a doc-generation step if they drift again.

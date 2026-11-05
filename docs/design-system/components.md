@@ -22,7 +22,7 @@ The three shell components share an identical prop API:
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `variant` | `'dark' \| 'light' \| 'transparent'` | `'transparent'` | Colour scheme for the shell component (theme-independent — `'dark'` renders correctly on a light page) |
+| `variant` | `'dark' \| 'light' \| 'transparent'` | `'dark'` (`AppHeader`, `AppSidebar`), `'transparent'` (`AppFooter`) | Colour scheme for the shell component (theme-independent — `'dark'` renders correctly on a light page) |
 | `colors` | `PanelColors` | — | Per-instance override of any `--mw-panel-*` token |
 | `docsUrl` | `string` | — | `AppFooter` only — "Documentation" link href |
 | `devUrl` | `string` | — | `AppFooter` only — "Developer docs" link href |
@@ -31,23 +31,24 @@ Below 45em the sidebar becomes a drawer (the Popover API): give `AppSidebar` an 
 
 ### Slots
 
-`AppHeader` and `AppSidebar` expose named slots for custom content:
+`AppHeader`, `AppSidebar` and `AppFooter` expose named slots for custom content (`AppHeader`: `brand`, the default slot and `actions`, rendered directly with no wrapper; `AppSidebar`: `head`, the default slot inside the labelled `nav`, `body` and `foot`; `AppFooter`: `start`, the default slot and `end`):
 
 ```vue
 <AppHeader variant="dark">
-  <template #logo><!-- custom logo --></template>
-  <template #nav><!-- nav links --></template>
+  <template #brand><!-- the name or logo (plain text or a link) --></template>
+  <!-- the default slot: content between the brand and the actions -->
   <template #actions>
     <ColorModeControl v-model="mode" />
   </template>
 </AppHeader>
 
-<AppSidebar variant="light">
+<AppSidebar id="primary-nav" variant="light">
   <template #head><!-- sidebar header --></template>
   <template #default>
     <SidebarItem label="Overview" :active="true" />
     <SidebarItem label="Settings" />
   </template>
+  <template #body><!-- content below the navigation --></template>
   <template #foot><!-- sidebar footer --></template>
 </AppSidebar>
 ```
@@ -76,7 +77,7 @@ mode.value = 'dark'               // sets data-theme="dark" on <html>, persists 
 | `UiCard` | `title`, `as` (`section`, `article`, `li`), `level` (heading rank), `plain`, `href` | `--surface` background, `--border`, `--radius`; `href` makes the whole card a link through its title |
 | `UiBadge` | `tone` (`ok`, `warn`, `danger`, `info`, `neutral`, `accent`), `symbol` | Body-colour text with the tone as the border and a symbol, so meaning never rests on colour alone |
 | `UiNotice` | `type` (`info`, `warning`, `error`, `ok`), `message`, `as` (`p`, `div`) | `error` is an alert, the others are polite status messages |
-| `UiSelect` | native `<select>` attrs | Styled with scale tokens; `--focus-ring` on focus |
+| `UiInput`, `UiTextarea`, `UiSelect` | native control attrs | Styled with scale tokens; the edge is `--control-border` (3:1 on every canvas) and `--focus-ring` shows on focus |
 | `SidebarItem` | `label`, `icon?`, `active?`, `disabled?`, `href?` | Navigation item for `AppSidebar`; a real link with `href` |
 | `CopyableAddress` | `address`, `truncate?`, `chars?`, `label?` | Copy-to-clipboard with icon; slot for link |
 | `ExplorerLink` | `href`, `value?` | External block-explorer link; compose inside `CopyableAddress` |
@@ -89,7 +90,8 @@ mode.value = 'dark'               // sets data-theme="dark" on <html>, persists 
 | `UiDataTable` | `<th>` cells in the `head` slot (never a `<tr>`), rows in the default slot, `rows` and `empty` for the empty state, `caption` for the name; scrolls inside its own focusable box |
 | `UiStatGrid` / `UiStatRow` | A description list of label/value pairs |
 | `UiStepper`, `UiMeter`, `UiPager`, `UiLiveStatus`, `UiEmptyState` | A wizard or progress list, a labelled `<meter>`, previous/next paging, an always-mounted status region, "nothing here yet" |
-| `UiDialog` | The native `<dialog>`, dismissed by Escape and a click outside |
+| `UiDialog` | The native `<dialog>`, dismissed by Escape and a click outside; a dialog with no control in it takes a tab stop so a long one can be scrolled from the keyboard |
+| `UiFieldHint` | A "?" button whose tip opens on hover and focus and closes with Escape without moving either (WCAG 1.4.13) |
 
 ### Copy + link pattern
 
@@ -102,13 +104,15 @@ mode.value = 'dark'               // sets data-theme="dark" on <html>, persists 
 ### Explorer helper
 
 ```ts
-import { suiExplorerUrl } from '@meddleware/ui'
+import { suiExplorerUrl, walruscanBlobUrl } from '@meddleware/ui' // both live in @meddleware/web-utils and are re-exported
 
-const url = suiExplorerUrl('txblock', txDigest, 'testnet')
-// → https://suiscan.xyz/testnet/tx/<txDigest>
+suiExplorerUrl('txblock', txDigest, 'testnet')
+// → https://testnet.suivision.xyz/txblock/<txDigest>
+walruscanBlobUrl('testnet', blobId)
+// → https://walruscan.com/testnet/blob/<blobId>
 ```
 
-Supported kinds: `'account'`, `'object'`, `'txblock'`. Network defaults to `'testnet'`.
+Supported kinds: `'account'`, `'object'`, `'txblock'` (SuiVision). Network defaults to `'testnet'` (`'mainnet'` and `'devnet'` also). Every id is encoded into one path segment. Bind a URL in a template only through `safeHref`, `safePath`, `safeIcon`, `suiExplorerUrl` or `walruscanBlobUrl`: `@meddleware/eslint-config` fails the lint otherwise.
 
 ## CSS utilities (`reset.css`)
 

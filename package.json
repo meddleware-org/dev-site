@@ -30,6 +30,7 @@
     "gen:onchain": "node scripts/gen-onchain.mjs",
     "dev": "npm run gen:onchain && vitepress dev docs",
     "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && node scripts/gen-llms-full.mjs https://meddleware.dev \"Meddleware developer documentation\" && node scripts/check-dist-no-audit.mjs",
+    "check:csp": "node scripts/check-csp-inline.mjs @Dockerfile dist",
     "preview": "vitepress preview docs",
     "type-check": "tsc --noEmit",
     "lint:js": "eslint .",
@@ -72,7 +73,7 @@
     "eslint-plugin-vuejs-accessibility": "^2.6.3",
     "jiti": "^2.7.0",
     "typescript": "~6.0.0",
-    "vitepress": "2.0.0-alpha.20",
+    "vitepress": "2.0.0-alpha.21",
     "vitest": "~5.0.5",
     "vue": "^3.5.44",
     "vue-eslint-parser": "^10.4.1"

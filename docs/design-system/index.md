@@ -1,9 +1,12 @@
 # Design system
 
-The Meddleware design system is two packages:
+The Meddleware design system is two packages, with three shared packages around them:
 
-- **`@meddleware/design-tokens`** — CSS custom properties, JSON token tree, and TypeScript exports. The source of truth for colours, spacing, type scale, and motion.
-- **`@meddleware/ui`** — Vue 3 component library (layout shell, primitives, colour-mode control) built entirely on the token layer.
+- **`@meddleware/design-tokens`** — CSS custom properties, JSON token tree, and TypeScript exports. The source of truth for colours, spacing, type scale, and motion; text contrast is held at WCAG AAA (7:1) in every colour mode and season.
+- **`@meddleware/ui`** — Vue 3 component library (layout shell, primitives, forms, data and status components, colour-mode control) built entirely on the token layer, each component with its own CSS in a cascade layer.
+- **`@meddleware/web-utils`** — framework-free helpers the frontends share: exact bigint amounts, dates and time zones, bounded fetch, stale-result guards, and the link helpers (`safeHref`, `safePath`, `suiExplorerUrl`).
+- **`@meddleware/frontend-config`** — the shared lint, accessibility sweep, browser support list, Playwright and Lighthouse configuration.
+- **`@meddleware/vitepress-theme`** — the VitePress theme and site config these documentation sites use.
 
 ## Quick start
 

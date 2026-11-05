@@ -52,6 +52,9 @@ jobs:
       - name: Build (internal-strict dead-link detection)
         run: npm run build
 
+      - name: Inline scripts are allowed by the image's CSP
+        run: npm run check:csp
+
       - name: Third-party licence notices
         run: npm run check:licenses && test -s dist/THIRD_PARTY_LICENSES
 

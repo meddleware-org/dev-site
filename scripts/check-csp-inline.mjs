@@ -1,19 +1,35 @@
-// Fails the build when dist/ contains an inline <script> whose sha256 is not allowed by the CSP's
-// script-src. VitePress inlines a couple of small scripts (appearance/theme bootstrap); the image
-// serves a hash-based CSP, so a VitePress upgrade that changes them must update the Dockerfile's
-// CSP ARG in the same change — this check makes that impossible to miss.
+// Fails the build when dist/ contains an inline <script> that the CSP's script-src does not allow, or when script-src allows
+// 'unsafe-inline'. VitePress inlines a couple of small scripts (the appearance/theme bootstrap and the page-hash map); the image serves a
+// hash-based CSP, so a VitePress upgrade (or a change of the `appearance` option) that changes them must update the Dockerfile's CSP ARG
+// in the same change — this check makes that impossible to miss, in CI as well as in the image build.
 //
 // Usage: node scripts/check-csp-inline.mjs "<csp>" [distDir]
+//        node scripts/check-csp-inline.mjs @Dockerfile [distDir]   (reads the Dockerfile's `ARG CSP="…"` default)
 import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-const [csp, dist = 'dist'] = process.argv.slice(2)
-if (!csp) {
-  console.error('usage: check-csp-inline.mjs "<csp>" [distDir]')
+const [source, dist = 'dist'] = process.argv.slice(2)
+if (!source) {
+  console.error('usage: check-csp-inline.mjs "<csp>"|@Dockerfile [distDir]')
   process.exit(2)
 }
+
+let csp = source
+if (source.startsWith('@')) {
+  const m = readFileSync(source.slice(1), 'utf8').match(/^ARG CSP="([^"]*)"/m)
+  if (!m?.[1]) {
+    console.error(`CSP check: no 'ARG CSP="…"' default found in ${source.slice(1)}`)
+    process.exit(2)
+  }
+  csp = m[1]
+}
+
 const scriptSrc = (csp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src ')) ?? '').split(/\s+/)
+if (scriptSrc.includes("'unsafe-inline'")) {
+  console.error("CSP check: script-src allows 'unsafe-inline'; the page must not.")
+  process.exit(1)
+}
 const allowed = new Set(scriptSrc.filter((t) => t.startsWith("'sha256-")).map((t) => t.slice(1, -1)))
 
 function* htmlFiles(dir) {
@@ -34,6 +50,10 @@ for (const file of htmlFiles(dist)) {
     const hash = 'sha256-' + createHash('sha256').update(m[1]).digest('base64')
     if (!allowed.has(hash)) missing.set(hash, file)
   }
+}
+if (files === 0) {
+  console.error(`CSP check: no HTML file found in ${dist}; build first.`)
+  process.exit(2)
 }
 if (missing.size) {
   console.error(`CSP check: ${missing.size} inline script(s) not allowed by script-src:`)
