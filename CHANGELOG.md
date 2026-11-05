@@ -1,5 +1,20 @@
 # Changelog — @meddleware/dev
 
+## 0.0.35 — 2026-11-05
+
+### Fixed
+
+- The footer's legal links are no longer hidden behind the fixed sidebar (`@meddleware/vitepress-theme` 0.0.2); VitePress 2.0.0-alpha.21.
+- The design-system pages match the released packages: component slots and defaults, the explorer links, `--control-border`, the scale, motion, shape and layering tokens, the contrast gate, and the shared packages.
+
+### Added
+
+- `npm run check:csp` runs in CI (as in docs-site).
+
+### Changed
+
+- Dependency alignment: `@meddleware/ui` ^0.1.38 (form-field edge contrast, sticky-offset and focus-not-obscured fixes), `@meddleware/design-tokens` ^0.1.13, `@meddleware/web-utils` ^0.0.2 and `@meddleware/frontend-config` ^0.0.2.
+
 ## 0.0.34 — 2026-10-31
 
 - Shared VitePress theme and accessibility gates
