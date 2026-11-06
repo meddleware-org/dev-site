@@ -98,3 +98,7 @@ Cross-links: `dev.` nav has "API reference" pointing to `docs.`; `docs.` service
 ## Sister site
 
 `repos/docs-site/` (`docs.meddleware.co.uk`) is the sister site. k8s manifests live at `post-bootstrap/dev-site/`. Image: `quay.io/meddleware-org/dev-site`.
+
+## Design-system pages
+
+`docs/design-system/*.md` are hand-written, tied to the installed packages by `tests/design-system-docs.test.mjs`: a page may name only custom properties that exist in `@meddleware/design-tokens` and `Ui…`/`App…` components that `@meddleware/ui` exports. When a package release adds or renames one, update the page in the same change.
