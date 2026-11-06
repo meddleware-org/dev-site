@@ -1,5 +1,15 @@
 # Changelog — @meddleware/dev
 
+## 0.0.36 — 2026-11-06
+
+### Added
+
+- `LICENSE` (0BSD), a README, and `tests/design-system-docs.test.mjs`: the design-system pages may name only custom properties and components that exist in the installed packages.
+
+### Changed
+
+- Takes `@meddleware/ui` ^0.1.39 (the tab list items use `role="none"`) and the Dependabot merges of 2026-11-06: image bases `static-server` 0.1.12 and a refreshed `node` build image, and newer dev tools.
+
 ## 0.0.35 — 2026-11-05
 
 ### Fixed
