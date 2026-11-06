@@ -1,6 +1,6 @@
 # CLAUDE.md — @meddleware/dev-site
 
-Developer documentation site for `meddleware.dev`. VitePress 2.0.0-alpha.20.
+Developer documentation site for `meddleware.dev`. VitePress 2.0.0-alpha.21 (an exact pin: `@meddleware/vitepress-theme` patches two of its components).
 
 ## Purpose
 
