@@ -1,0 +1,18 @@
+{
+  "testnet": {
+    "status": "live",
+    "live": [
+      "access gate",
+      "sealed storage"
+    ],
+    "missing": []
+  },
+  "mainnet": {
+    "status": "coming",
+    "live": [],
+    "missing": [
+      "access gate",
+      "sealed storage"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
 # No VITE_* build args: the site is static content with no per-network configuration.
 # No TypeDoc/gen-api step: API reference lives in the docs. site; this site links in.
 # Content-Security-Policy served by static-server (verified 2026-09-30: production build loaded in
-# Chromium under this policy with zero violations). script-src stays 'self' plus the sha256 hashes of VitePress's two inline bootstrap scripts (checked at build time by scripts/check-csp-inline.mjs); connect-src is 'self' only: this
+# Chromium under this policy with zero violations). script-src stays 'self' plus the sha256 hashes of VitePress's two inline bootstrap scripts (checked at build time by mw-check-csp-inline); connect-src is 'self' only: this
 # static site's local search and footer load same-origin files and nothing connects elsewhere (headless
 # Chromium probe, 2026-10-22: search returns results and the footer renders with zero violations; the site
 # has no RPC, relay, aggregator or key-server client); img-src allows https:/data:/blob: for images and local previews.
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build && npm run licenses
 ARG CSP
 # Every inline <script> VitePress emits must be allowed by the CSP hash list above.
-RUN node scripts/check-csp-inline.mjs "${CSP}" dist
+RUN npx mw-check-csp-inline "${CSP}" dist
 
 # ── runtime stage ─────────────────────────────────────────────────────────────
 FROM quay.io/meddleware-org/static-server:0.1.12@sha256:f2cdfac6c795ee8a442e144e9c2d9eabbbe6566c41fdc696fe3befe2aa8d052d

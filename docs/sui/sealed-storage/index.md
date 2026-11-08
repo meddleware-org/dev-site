@@ -1,6 +1,11 @@
-# Sealed Storage — SDK setup
+---
+title: "Sealed Storage SDK"
+description: "Install and configure @meddleware/sealed-storage-client, the Seal key-server committees for testnet and mainnet, the encrypt, store and decrypt flow, and the manifest format."
+---
 
-[User docs →](https://docs.meddleware.co.uk/blockchain/sui/sealed-storage/) | [API reference →](https://docs.meddleware.co.uk/blockchain/sui/sealed-storage/reference)
+# Sealed Storage: SDK setup
+
+[User docs →](https://docs.meddleware.co.uk/blockchain/sui/sealed-storage/) | [Generated API reference →](https://docs.meddleware.co.uk/blockchain/sui/sealed-storage/api/)
 
 Sealed Storage encrypts data client-side with [Seal](https://seal-docs.wal.app/) threshold
 encryption and stores the ciphertext on Walrus. A Seal key server releases its key share only if an
@@ -23,7 +28,10 @@ as sender, so only addresses that satisfy the policy can decrypt.
 npm install @meddleware/sealed-storage-client @mysten/seal @mysten/sui
 ```
 
-`@mysten/seal` and `@mysten/sui` are peer dependencies.
+`@mysten/seal` (`^1.4.18`) and `@mysten/sui` (`^2.33.2`) are peer dependencies, so the app provides one copy of each;
+`@meddleware/access-gate-client` is a dependency (the `nft-gate` provider reads gates through it). The package declares
+`engines.node >=24` and has three entries: the main one, `/controller` (`SealController`, so an app can lazy-load `@mysten/seal`) and
+`/deployments`.
 
 ## Create a controller
 
@@ -55,7 +63,7 @@ const seal = new SealController(
     accessGateOriginalId,
     threshold: 2,
     serverConfigs: [
-      // Mysten testnet committee (decentralised server, via the aggregator) + two independent servers
+      // The testnet key servers listed under "Key-server committees" below
       { objectId: '0xb012378c9f3799fb5b1a7083da74a4069e3c3f1c93de0b27212a5799ce1e1e98', weight: 1,
         aggregatorUrl: 'https://seal-aggregator-testnet.mystenlabs.com' },
       { objectId: '0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75', weight: 1 },
@@ -74,8 +82,46 @@ public. Seal to a soulbound gate, and leave `accessGateOriginalId` unset only if
 yourself: without it the controller does not read the gate.
 :::
 
-These are the committee defaults `sealed-storage-ui` uses on testnet. On mainnet the Mysten committee
-aggregator requires an API key; see the Seal docs.
+### Key-server committees
+
+Decryption uses a **t-of-n** committee of key servers. Encryption targets every configured server; decryption needs `threshold` of
+them (weighted by `weight`) to release key shares, after the on-chain policy has approved the requester. The threshold must lie in
+`[1, total weight]`. A short-lived **session key** (`sessionTtlMin`, default 10 minutes), signed once per address with one wallet
+personal-message signature, authorises the release and is cached until it expires (`controller.clearSession(address?)` drops it).
+Each ciphertext records the servers and threshold it was encrypted under, so changing servers affects new content only; see
+[re-sealing](./integration#re-seal-onto-new-key-servers).
+
+A committee behind an aggregator (`aggregatorUrl`) counts as **one** server: its own threshold is internal and the key-server URL
+verification (`verifyKeyServers`, on by default for independent servers) is off for it. `verifyKeyServers` is one switch for the whole
+configuration, so a mixed setup runs without URL verification for the independent servers too (`controller.verifiesKeyServers` tells
+you). An API key (`apiKeyName` and `apiKey`, for a permissioned server or an authenticated aggregator) is **public** once it ships in
+a browser bundle, so never rely on one for secrecy; the Meddleware apps use keyless servers.
+
+**Testnet** (the defaults `sealed-storage-ui` uses; threshold 2):
+
+| Server object id | What it is |
+| --- | --- |
+| `0xb012378c9f3799fb5b1a7083da74a4069e3c3f1c93de0b27212a5799ce1e1e98` | Mysten's decentralised testnet committee, reached through the aggregator `https://seal-aggregator-testnet.mystenlabs.com` (one server) |
+| `0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75` | a Mysten Open-mode key server |
+| `0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8` | a Mysten Open-mode key server |
+
+**Mainnet, not yet used: no mainnet `sealed_storage` deployment.** The committee the apps are configured for once there is one: three
+independent Open-mode servers (keyless, no aggregator) at threshold 2, so no single operator can decrypt and one may be down. Their
+`/v1/service` endpoints were checked on 2026-11-07 (workspace decision D24); a full mainnet encrypt and decrypt has not been, because
+the package does not exist on mainnet.
+
+| Operator | Server object id | URL |
+| --- | --- | --- |
+| Overclock | `0x145540d931f182fef76467dd8074c9839aea126852d90d18e1556fcbbd1208b6` | `https://seal-mainnet-open.overclock.run` |
+| NodeInfra | `0x1afb3a57211ceff8f6781757821847e3ddae73f64e78ec8cd9349914ad985475` | `https://open-seal-mainnet.nodeinfra.com` |
+| H2O Nodes | `0x4a65b4ff7ba8f4b538895ee35959f982a95f0db7e2a202ec989d261ea927286a` | `https://seal.sui-mainnet.h2o-nodes.com` |
+
+Open mode has no client isolation and no key export, and the operators publish no terms: if one withdraws, content sealed under it
+must be re-sealed while the others still answer; two leaving at once would lock content sealed under them.
+
+These ids are checked: `npm run check:onchain-ids` fails on any 32-byte id in a page that is neither a deployment id of the installed
+clients nor listed, with its reason, under `meddleware.onchainIds.otherIds` in the site's `package.json`, and a test keeps this table,
+the sample above and that list equal.
 
 ## The flow
 
@@ -106,7 +152,24 @@ Validate untrusted manifests with `parseSealedManifest(raw, registry)` (throws `
 registry also validates the policy's `params`), then
 check `network` matches your app.
 
+## SDK surface
+
+| Export | What it is |
+| --- | --- |
+| `SealController` (`/controller`) | `encrypt(type, params, data)` → `{ id, ciphertext }`; `decrypt(type, params, id, ciphertext, { address, signPersonalMessage })`; `explainRefusal(type, params, id, { address })`; `clearSession(address?)`; `verifiesKeyServers`. No policy logic lives here |
+| `PolicyRegistry`, `createDefaultRegistry(accessGateOriginalId)` | register providers (`register(provider, { replace? })`, `list()`); the default registry holds `nft-gate` and `time-lock` |
+| `createNftGateProvider`, `timeLockProvider` | the built-in `SealPolicyProvider`s; each builds the Seal identity for new content (`buildId`), the approve call (`buildApprove`), checks an identity (`verifyId`) and may validate manifest params (`parseParams`) |
+| `parseSealedManifest(raw, registry)`, `SealedManifestError` | validate an untrusted manifest |
+| `buildPublishSealedContentTx`, `buildPublishSealedContentTransaction`, `listSealedContent`, `parseSealedContentEvent`, `sealedContentEventType`, `SEALED_CONTENT_LIMITS` | the discovery registry (see the [integration guide](./integration#publish-a-discovery-pointer-optional)) |
+| `POLICY_ABORTS`, `classifyPolicyAbort`, `describePolicyAbort`, `parseMoveAbort` | abort codes of the `sealed_storage` modules, read by `(module, code)` |
+| `explainApproveRefusal`, `refusalMessage`, `REASON_NOT_OWNER` | why a decrypt was refused, from a simulation of the approve call |
+| `gateOperators`, `assertLinkedGate` | the addresses to trust as authors of a gate's content (its `payment_recipient` plus addresses you vouch for); a check that a gate belongs to the linked `access_gate` package |
+| `describeCiphertext`, `sealedUnderServers` (`/controller`) | read the servers and threshold a ciphertext was sealed to, for re-sealing |
+| `hexToBytes`, `bytesToHex`, `objectIdBytes`, `u64beBytes`, `randomBytes`, `concatBytes` | the byte helpers the providers build identities with |
+
+Safety defaults: `decrypt` refuses a ciphertext whose header names a different identity or policy package than expected,
+`checkShareConsistency` is on, and a gate that mints transferable passes is refused unless `allowTransferableGates` is set.
+
 See the [integration guide](./integration) for end-to-end code and [Writing policies](./policies)
 for adding a policy.
 
-<!-- white-label: operator guide for running a custom Seal key server committee — planned -->

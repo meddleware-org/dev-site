@@ -1,3 +1,8 @@
+---
+title: "Design tokens"
+description: "The @meddleware/design-tokens entry points, the two-layer naming discipline of palette ramps and semantic roles, the scales, seasons and the contrast gate."
+---
+
 # Design tokens
 
 `@meddleware/design-tokens` ships four entry points:

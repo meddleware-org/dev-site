@@ -1,4 +1,9 @@
-# Access Gate — Integration guide
+---
+title: "Access Gate integration guide"
+description: "Buy and detect passes, prove access to a gateway, run single-use consumption, create and manage gates, read events, and handle aborts."
+---
+
+# Access Gate: integration guide
 
 Examples use `gate` (an `AccessGateConfig`), the ids from `accessGateDeployment(network)`
 (`originalId`, `publishedAt`, `platformConfigId`), a Core-API Sui `client`, and an executor `exec`
@@ -13,7 +18,7 @@ const { digest } = await exec.signAndExecute(buildPurchaseTx(gate, priceMist))
 await exec.waitForTransaction(digest)
 
 const passes = await fetchAccessNfts(client, address, gate.nftType, gate.gateId)
-// [{ objectId, gateId, usesRemaining }] — usesRemaining is null for an unlimited pass
+// [{ objectId, gateId, variant }]: variant is { kind: 'unlimited' } or { kind: 'singleUse', remaining: bigint }
 ```
 
 Read the current price from the gate (`fetchGate(client, gateId, originalId)` → `priceMist`)
@@ -25,7 +30,7 @@ The wallet signs the gateway's challenge; the gateway checks the signature, that
 and unused, and that the address owns a pass for the gate. The challenge and proof come from
 `@meddleware/access-gate-gateway-client`. The signed message (`access-gate-gateway:access:v3`) is bound to the gateway's
 origin, the gate and the network, so `buildAccessProof` requires all three: a proof made for one
-gateway, gate or network is useless at any other ([the message](./gateway#routes)).
+gateway, gate or network is useless at any other ([the message](./gateway#the-wire-protocol)).
 
 ```ts
 import { fetchChallenge, buildAccessProof } from '@meddleware/access-gate-gateway-client'
@@ -42,6 +47,10 @@ const token = await buildAccessProof({
 
 await fetch(`${GATEWAY}/protected/path`, { headers: { Authorization: `Bearer ${token}` } })
 ```
+
+`sign` receives the message bytes and returns `{ signature }`. In the samples `wallet` stands for any wallet-standard personal-message
+signer; with [`@meddleware/wallet-adapter`](/libraries/wallet-adapter) pass `useWallet().signPersonalMessage`, which takes the bytes
+directly, as `sign`.
 
 The token is `base64(JSON { address, nonce, signature, consumeDigest? })` and valid for one request
 with that nonce (the challenge TTL defaults to 300 s). Pass only a `GATEWAY` you trust to be the
@@ -79,8 +88,8 @@ persists the consume digest before the upload, so an interrupted upload never sp
 
 ## Operating gates
 
-Operators create and manage gates with the same library (the `access-gate-ui` console is built on
-it):
+Gate owners create and manage gates with the same library (the `access-gate-ui` console is built on it). Whoever holds a gate's
+`AdminCap` administers it:
 
 ```ts
 import {
@@ -88,7 +97,7 @@ import {
   buildMakeGateImmutableTx, fetchPlatformConfig, minimumPaidPriceMist, gateCommissionMist,
 } from '@meddleware/access-gate-client'
 
-// Platform terms: commission floor → minimum paid price (0.005 SUI by default), free-gate fee
+// Platform terms: the commission floor gives the minimum paid price (0.005 SUI by default), plus the free-gate fee
 const platform = await fetchPlatformConfig(client, platformConfigId, originalId)
 const minPrice = minimumPaidPriceMist(platform.minCommissionMist)
 
@@ -126,7 +135,7 @@ import { listAccessGateEvents } from '@meddleware/access-gate-client'
 
 const page = await listAccessGateEvents(client, {
   originalId,
-  kinds: ['AccessMinted', 'AccessConsumed'], // default: all seven
+  kinds: ['AccessMinted', 'AccessConsumed'], // default: all eight
   gateId: g.gateId,                         // optional
   limit: 20,
   // indexer: { url: 'https://sui-indexer.meddleware.dev', network: 'testnet' }, // optional
@@ -135,9 +144,25 @@ const page = await listAccessGateEvents(client, {
 // page.cursor — pass back as `cursor` for older events
 ```
 
-Events are decoded from their BCS bytes and matched at the original id, so another package's
-same-named events are ignored. The optional read-indexer is for display only: a first page falls
-back to the full node when it fails, and nothing may authorise from it.
+The kinds are `GateCreated`, `AccessMinted`, `AccessConsumed`, `AccessBurned`, `GateFrozen`, `GateMadeFree`, `PlatformConfigUpdated` and
+`PlatformMigrated` (the Move structs carry an `Event` suffix: `AccessMintedEvent`, `AccessConsumedEvent`, …). A purchase or an airdrop
+emits `AccessMinted` (its address is `recipient`); a spent use emits `AccessConsumed` (`consumer` and the challenge `nonce`).
+
+Events are decoded from their **BCS bytes**, which are the same on every transport, and matched at the original id, so another
+package's same-named events are ignored. The decode is strict: it re-serialises and compares, so a field appended by a later upgrade
+throws instead of being silently lost. With `indexer`, the first page comes from the [read indexer](/sui/indexer) and falls back to
+the full node when the indexer fails, takes longer than 3 s (`timeoutMs`) or is **stale**: a head page whose `polledAt` is missing,
+`null` or older than `STALE_AFTER_MS` (60 s) by this machine's clock counts as unavailable (override per call with
+`indexer.staleAfterMs`), and `page.indexerError` says why. A cursor stays with the source that issued it. The indexer is for display
+only: nothing may authorise from it.
+
+::: warning Events are pruned
+Public Sui fullnodes keep only a short window of events (about 5½ days on testnet when measured on 2026-10-08; whoever runs the node
+sets it, and it can change). A system that needs a reliable list of gates must not replay `GateCreatedEvent`. Read **`AdminCap`
+ownership → `Gate`** instead (`fetchOwnedGates` for one address, `fetchAdminCaps` then `fetchGate` for any), which always reflects live
+state; this is what the [Treasury console](/sui/treasury/data#why-gates-are-found-through-admincaps) does. Event history comes from the
+indexer, which records from the oldest event the node still served at its first start (`indexedFromCheckpoint`).
+:::
 
 ## Error handling
 
@@ -160,9 +185,13 @@ the failed status) to `abortMessage(error, originalId)`, which returns the messa
 | 10 | freeze refused: gate paused and its policy requires unpaused |
 | 11 | paid price below the platform minimum (or 0 via `create_gate`) |
 | 12 | price 0 before the free-gate fee is paid |
+| 13 | `E_WRONG_VERSION`: the called package version has been retired; rebuild against the current `publishedAt` |
+| 14 | `E_NOT_UPGRADE`: `migrate` to the version the platform is already at |
+| 15 | `E_POLICY_COMBINATION`: a pause-blocking policy flag without `freezeRequiresUnpaused` (`validateGatePolicy` checks it first) |
+| 16 | `E_USES_KIND_IMMUTABLE`: switching between unlimited and single-use (only the count of a single-use gate can change) |
 
-Code 1 also covers `consume` on a paused gate whose policy has `pause_blocks_access`, and 2 an
-underpaid free-gate fee or airdrop commission.
+Code 1 also covers `consume` on a paused gate whose policy has `pause_blocks_access`, and 2 an underpaid free-gate fee or airdrop
+commission. `abortMessage` requires `originalId`: without it any package's `access_gate` abort would get a message.
 
 Gateway HTTP errors (`401`, `403`, `409`, `429`, `502`) are described in
 [Deploy the gateway](./gateway#responses).

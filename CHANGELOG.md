@@ -1,5 +1,23 @@
 # Changelog — @meddleware/dev
 
+## [0.0.37] - 2026-11-08
+
+### Added
+
+- Pages for developers that were missing: Token Issuance (the client, the compiled template and its patcher, the publish and finalize transactions, the result and the errors that mean a coin exists), Treasury (what the console reads, its configuration, the JSON each `access_gate` object renders as, the BCS event layouts and event pruning), the read indexer (routes, parameters, response shapes, caching, freshness, running your own), and a Libraries section: `wallet-adapter` (`useWallet`, `useNetwork` and `explorerNetwork`, `selectBuiltNetwork`, `createToolWallet`, the testing entry), `web-utils`, `frontend-config` (every export and bin, the CSP profiles, `mw-sync`, `mw-network-status`, `meddlewareApp`, `vueTestConfig`), `walrus-storage-kit` and `vitepress-theme`. `AppToolShell`, the remaining components, the composables and the runtime endpoint configuration are in the design-system pages.
+- The developer detail cut from the docs-site reference pages (FU-0063): the Walrus result types and the access-proof wire format, the gateway protocol and event pruning, the Treasury JSON shapes, event names and BCS notes, and the Sealed Storage committee, session key, discovery pointer and SDK surface.
+- `NetworkNotice` (home, getting started, the Sui overview): "Live on Sui testnet; mainnet is coming." or "Live on Sui testnet and mainnet.", read from `docs/.vitepress/network.json`, which `npm run gen:network` writes from the clients' deployment records and CI checks (`npm run check:network`). No page claims a network is live in prose.
+- The Sealed Storage page lists the testnet key servers and the three mainnet Open-mode servers, labelled "mainnet, not yet used: no mainnet `sealed_storage` deployment". Every id is in `meddleware.onchainIds.otherIds` with its reason; a test keeps the page and the list equal.
+- Tests: page front matter, sidebar and navigation links, banned wording, the network notice, the Seal committee. The browser tests cover 31 pages (up from 5).
+
+### Changed
+
+- Content reviewed against the real packages and fixed: the toolchain pins (Sui CLI `v1.81.0`, Walrus CLI `v1.57.0`, Node requirements per package), the local-development commands and repository names (the old page said `cd dev` and `cd docs`), the `access_gate` testnet table (published-at differs from the original id since version 2), pass reads (`variant`, not `usesRemaining`), the eight event kinds (not seven) and abort codes 13 to 16, `relayGateConfig`'s arguments, FROST for Walrus costs, the gateway page (three implementations: the Rust Cloudflare Worker is the live one, the Rust/Axum server buffers bodies and is for small-body upstreams, the TypeScript Worker is superseded), and the relay settings.
+- The dead "More blockchains" navigation entry, the white-label comments and the DAO placeholder are gone; the navigation lists Getting started, Sui, Libraries, Design system, the API reference of the four clients and the user docs.
+- Build scripts now come from `@meddleware/vitepress-theme` 0.0.4 (`mw-gen-onchain`, `mw-check-onchain-ids`, `mw-gen-llms-full`, `mw-check-dist-no-audit`) and `@meddleware/frontend-config` 0.0.7 (`mw-audit-gate`, `mw-third-party-licenses`, `mw-check-csp-inline`, `mw-sync`); the local copies and their tests are removed. `npx mw-sync --check` and `npm run check:network` run in CI.
+- Takes `@meddleware/ui` ^0.1.40, `@meddleware/access-gate-sui` ^0.0.12, `@meddleware/token-issuance-template-sui` ^1.0.12, `@meddleware/wallet-adapter` ^0.0.22, and adds `@meddleware/token-issuance-client` and `@meddleware/web-utils` for the checked samples.
+- The sidebar keeps a focused item out from under the navigation bar (WCAG 2.4.11): provided by `@meddleware/vitepress-theme` 0.0.4.
+
 ## 0.0.36 — 2026-11-06
 
 ### Added

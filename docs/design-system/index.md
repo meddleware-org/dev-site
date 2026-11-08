@@ -1,12 +1,18 @@
+---
+title: "Design system"
+description: "The Meddleware design system: design tokens, the Vue 3 component library and the application shell, with seasonal theming, light and dark mode and WCAG AAA contrast."
+---
+
 # Design system
 
-The Meddleware design system is two packages, with three shared packages around them:
+The Meddleware design system is two packages, with three shared packages around them (a tool app puts them together with
+[`AppToolShell`](./components#app-tool-shell) and [`@meddleware/wallet-adapter`](/libraries/wallet-adapter)):
 
 - **`@meddleware/design-tokens`** — CSS custom properties, JSON token tree, and TypeScript exports. The source of truth for colours, spacing, type scale, and motion; text contrast is held at WCAG AAA (7:1) in every colour mode and season.
-- **`@meddleware/ui`** — Vue 3 component library (layout shell, primitives, forms, data and status components, colour-mode control) built entirely on the token layer, each component with its own CSS in a cascade layer.
-- **`@meddleware/web-utils`** — framework-free helpers the frontends share: exact bigint amounts, dates and time zones, bounded fetch, stale-result guards, and the link helpers (`safeHref`, `safePath`, `suiExplorerUrl`).
-- **`@meddleware/frontend-config`** — the shared lint, accessibility sweep, browser support list, Playwright and Lighthouse configuration.
-- **`@meddleware/vitepress-theme`** — the VitePress theme and site config these documentation sites use.
+- **`@meddleware/ui`**: Vue 3 component library (layout shell, `AppToolShell` for tool apps, primitives, forms, data and status components, colour-mode control) built entirely on the token layer, each component with its own CSS in a cascade layer.
+- **[`@meddleware/web-utils`](/libraries/web-utils)**: framework-free helpers the frontends share: exact bigint amounts, dates and time zones, bounded fetch, stale-result guards, and the link helpers (`safeHref`, `safePath`, `suiExplorerUrl`).
+- **[`@meddleware/frontend-config`](/libraries/frontend-config)**: the shared lint, accessibility sweep, browser support list, Playwright, Vite and Lighthouse configuration, and the Content-Security-Policy profiles.
+- **[`@meddleware/vitepress-theme`](/libraries/vitepress-theme)**: the VitePress theme and site config the documentation sites use.
 
 ## Quick start
 

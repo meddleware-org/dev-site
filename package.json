@@ -1,6 +1,6 @@
 {
   "name": "@meddleware/dev-site",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Meddleware developer documentation site (meddleware.dev) — VitePress. Integration guides, design system usage, and Sui development patterns.",
   "homepage": "https://meddleware.dev/",
   "author": "Meddleware <dev@meddleware.co.uk>",
@@ -23,21 +23,22 @@
     "!docs/.vitepress/dist",
     "!docs/.vitepress/dist/**",
     "tsconfig.json",
-    "CHANGELOG.md",
-    "scripts"
+    "CHANGELOG.md"
   ],
   "scripts": {
-    "gen:onchain": "node scripts/gen-onchain.mjs",
+    "gen:onchain": "mw-gen-onchain",
+    "gen:network": "mw-network-status --out docs/.vitepress/network.json",
     "dev": "npm run gen:onchain && vitepress dev docs",
-    "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && node scripts/gen-llms-full.mjs https://meddleware.dev \"Meddleware developer documentation\" && node scripts/check-dist-no-audit.mjs",
-    "check:csp": "node scripts/check-csp-inline.mjs @Dockerfile dist",
+    "build": "npm run gen:onchain && npm run check:onchain-ids && vitepress build docs && mw-gen-llms-full https://meddleware.dev \"Meddleware developer documentation\" && mw-check-dist-no-audit",
+    "check:csp": "mw-check-csp-inline @Dockerfile dist",
     "preview": "vitepress preview docs",
     "type-check": "tsc --noEmit",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
-    "licenses": "node scripts/third-party-licenses.mjs",
-    "check:licenses": "node scripts/third-party-licenses.mjs --check",
-    "check:onchain-ids": "node scripts/check-onchain-ids.mjs",
+    "licenses": "mw-third-party-licenses",
+    "check:licenses": "mw-third-party-licenses --check",
+    "check:onchain-ids": "mw-check-onchain-ids",
+    "check:network": "mw-network-status --check docs/.vitepress/network.json",
     "test": "vitest run",
     "shots": "SHOTS=1 playwright test",
     "test:e2e": "npm run build && playwright test",
@@ -48,25 +49,28 @@
   },
   "dependencies": {
     "@meddleware/design-tokens": "^0.1.13",
-    "@meddleware/ui": "^0.1.39",
-    "@meddleware/vitepress-theme": "^0.0.2"
+    "@meddleware/ui": "^0.1.40",
+    "@meddleware/vitepress-theme": "^0.0.4"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
     "@meddleware/access-gate-client": "^0.0.13",
     "@meddleware/access-gate-gateway-client": "^0.0.22",
-    "@meddleware/access-gate-sui": "^0.0.11",
-    "@meddleware/frontend-config": "^0.0.2",
+    "@meddleware/access-gate-sui": "^0.0.12",
+    "@meddleware/frontend-config": "^0.0.7",
     "@meddleware/sealed-storage-client": "^0.0.26",
     "@meddleware/sealed-storage-sui": "^0.0.11",
-    "@meddleware/token-issuance-template-sui": "^1.0.11",
-    "@meddleware/wallet-adapter": "^0.0.21",
+    "@meddleware/token-issuance-client": "^0.0.15",
+    "@meddleware/token-issuance-template-sui": "^1.0.12",
+    "@meddleware/wallet-adapter": "^0.0.22",
     "@meddleware/walrus-storage-client": "^0.0.34",
+    "@meddleware/web-utils": "^0.0.4",
     "@mysten/seal": "^1.5.2",
     "@mysten/sui": "^2.36.0",
     "@mysten/walrus": "~1.2.37",
     "@playwright/test": "~1.64.1",
     "@types/node": "~26.6.5",
+    "@vitejs/plugin-vue": "^6.0.9",
     "@vue/eslint-config-typescript": "^14.9.0",
     "eslint": "^10.13.0",
     "eslint-plugin-vue": "^10.12.0",
@@ -88,5 +92,56 @@
     "basic-ftp": "^6.2.4",
     "tmp": "^0.2.7",
     "zod": "^4.6.7"
+  },
+  "meddleware": {
+    "kind": "app",
+    "csp": "docs",
+    "lhci": true,
+    "site": {
+      "id": "dev",
+      "outBase": "sui/onchain",
+      "otherSite": {
+        "id": "docs",
+        "origin": "https://docs.meddleware.co.uk",
+        "base": "blockchain/sui/onchain"
+      }
+    },
+    "onchainIds": {
+      "required": {
+        "sui/index.md": [
+          "accessGate.originalId",
+          "accessGate.publishedAt",
+          "accessGate.platformConfigId",
+          "sealPolicies.originalId",
+          "sealPolicies.policyConfigId"
+        ]
+      },
+      "otherIds": [
+        {
+          "id": "0xb012378c9f3799fb5b1a7083da74a4069e3c3f1c93de0b27212a5799ce1e1e98",
+          "reason": "Seal testnet key server: Mysten's decentralised committee, reached through its aggregator (ADR-0002)"
+        },
+        {
+          "id": "0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75",
+          "reason": "Seal testnet key server: a Mysten Open-mode server"
+        },
+        {
+          "id": "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8",
+          "reason": "Seal testnet key server: a Mysten Open-mode server"
+        },
+        {
+          "id": "0x145540d931f182fef76467dd8074c9839aea126852d90d18e1556fcbbd1208b6",
+          "reason": "Seal mainnet key server (Overclock, Open mode); not yet used: no mainnet sealed_storage deployment"
+        },
+        {
+          "id": "0x1afb3a57211ceff8f6781757821847e3ddae73f64e78ec8cd9349914ad985475",
+          "reason": "Seal mainnet key server (NodeInfra, Open mode); not yet used: no mainnet sealed_storage deployment"
+        },
+        {
+          "id": "0x4a65b4ff7ba8f4b538895ee35959f982a95f0db7e2a202ec989d261ea927286a",
+          "reason": "Seal mainnet key server (H2O Nodes, Open mode); not yet used: no mainnet sealed_storage deployment"
+        }
+      ]
+    }
   }
 }

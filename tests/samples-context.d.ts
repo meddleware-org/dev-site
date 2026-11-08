@@ -69,3 +69,6 @@ declare const g: Awaited<ReturnType<typeof import('@meddleware/access-gate-clien
 declare const id: string
 // The registry created in the Sealed Storage SDK setup.
 declare const registry: import('@meddleware/sealed-storage-client').PolicyRegistry
+// Token Issuance: the config and the deploy executor the guides introduce.
+declare const config: import('@meddleware/token-issuance-client').TokenConfig
+declare const executor: import('@meddleware/token-issuance-client/deploy').Executor

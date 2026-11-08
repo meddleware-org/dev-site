@@ -1,3 +1,8 @@
+---
+title: "PTB patterns"
+description: "Build, simulate and execute programmable transaction blocks with the Meddleware builders, pass results between calls, and read Move aborts by module and code."
+---
+
 # PTB patterns
 
 Programmable Transaction Blocks (PTBs) compose several Move calls into one atomic transaction. Every
@@ -100,8 +105,8 @@ tx.setGasBudget(20_000_000n) // 0.02 SUI
 
 ## Wallet integration (Vue)
 
-Meddleware apps use [`@meddleware/wallet-adapter`](https://www.npmjs.com/package/@meddleware/wallet-adapter),
-a wallet-standard composable whose connection is shared by every view in the window:
+Meddleware apps use [`@meddleware/wallet-adapter`](/libraries/wallet-adapter), a wallet-standard composable whose connection is
+shared by every view in the window:
 
 ```ts
 import type { Transaction } from '@mysten/sui/transactions'
@@ -111,46 +116,49 @@ const { account, buildExecutor } = useWallet({ requiredFeatures: ['sui:signTrans
 
 async function run(tx: Transaction): Promise<string> {
   const exec = await buildExecutor('testnet', 'https://fullnode.testnet.sui.io:443')
-  const { digest } = await exec.signAndExecute(tx)
-  await exec.waitForTransaction(digest)
+  const { digest } = await exec.signAndExecute(tx) // throws if the transaction failed on-chain
+  await exec.waitForTransaction(digest)            // before reading anything the transaction changed
   return digest
 }
 ```
 
+The executor refuses to sign for a chain the account does not list, checks that the node serves the selected network, and refuses to
+sign after the network was switched. Pass `{ include: { effects: true } }` to `signAndExecute` to get the effects and a `success`
+flag instead of an exception.
+
 ## Error handling
 
-A transaction that executed but aborted comes back as `FailedTransaction` — it does not throw. Move
-aborts carry the module and the code; abort codes are only unique **within** a module
-(`access_gate`, `nft_gate` and `timelock` all use small integers), so always key on
-`(module, code)`:
+A transaction that executed but aborted comes back from the SDK as `FailedTransaction`; it does not throw. (The wallet adapter's
+plain `signAndExecute` throws for you.) Move aborts carry the module and the code; abort codes are only unique **within** a module
+(`access_gate`, `nft_gate`, `timelock` and `config` all use small integers), so always key on `(module, code)`. Each client turns
+its own package's aborts into a message, and returns `null` for an abort that is not its own:
 
 ```ts
-const ABORTS: Record<string, Record<number, string>> = {
-  access_gate: {
-    1: 'This gate is paused.',
-    2: 'Payment is below the gate price.',
-    4: 'This pass has no uses left.',
-    5: 'This pass or cap belongs to a different gate.',
-    6: 'This gate is frozen.',
-    10: 'This gate cannot be frozen while paused.',
-    11: 'The price is below the platform minimum.',
-    12: 'Pay the free-gate fee to make this gate free.',
-  },
-  nft_gate: { 2: 'Pass is for a different gate.', 3: 'Pass is used up.', 4: 'Gate is paused.' },
-}
+import { abortMessage } from '@meddleware/access-gate-client'
+import { classifyPolicyAbort } from '@meddleware/sealed-storage-client'
+import { accessGateDeployment } from '@meddleware/access-gate-client/deployments'
+import { sealPoliciesDeployment } from '@meddleware/sealed-storage-client/deployments'
 
-function describeFailure(outcome: { status: { success: boolean; error?: any } }): string | null {
-  if (outcome.status.success) return null
-  const err = outcome.status.error
-  if (err?.$kind === 'MoveAbort') {
-    const module = err.MoveAbort.location?.module ?? ''
-    const code = Number(err.MoveAbort.abortCode)
-    return ABORTS[module]?.[code] ?? `${module} aborted with code ${code}`
-  }
-  return err?.message ?? 'Transaction failed'
+const gateIds = accessGateDeployment('testnet')
+const policyIds = sealPoliciesDeployment('testnet')
+
+const sim = await client.simulateTransaction({ transaction: tx, include: { effects: true } })
+const outcome = sim.Transaction ?? sim.FailedTransaction
+if (!outcome.status.success) {
+  // access_gate aborts 1 to 16, by the package's original id; the policy modules by (module, code)
+  const text =
+    abortMessage(outcome.status.error, gateIds.originalId) ??
+    classifyPolicyAbort(outcome.status.error, { policyPackageIds: [policyIds.originalId, policyIds.publishedAt] })?.meaning ??
+    outcome.status.error?.message
+  console.error('Would fail:', text)
 }
 ```
 
-Full abort-code tables live in each package's API reference:
-[`access_gate`](/sui/onchain/access-gate/api-reference) ·
-[`sealed_storage`](/sui/onchain/sealed-storage/api-reference).
+`abortMessage` requires the package's `originalId`, so a look-alike package's abort is never given a message. The full code tables are
+in the clients (`ACCESS_GATE_ABORTS`, `POLICY_ABORTS`) and in each package's on-chain API reference:
+[`access_gate`](/sui/onchain/access-gate/api-reference) and [`sealed_storage`](/sui/onchain/sealed-storage/api-reference). Code 13
+(`E_WRONG_VERSION`) in either package means the package version you built against has been retired: rebuild against the current
+`publishedAt`.
+
+A key server's refusal of a Seal decrypt does not carry the abort at all; see
+[Why was a decrypt refused](/sui/sealed-storage/integration#why-was-a-decrypt-refused).

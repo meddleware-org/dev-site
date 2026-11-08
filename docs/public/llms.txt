@@ -1,6 +1,6 @@
 # Meddleware developer documentation
 
-> How to build on Meddleware's Sui and Walrus tooling: TypeScript SDKs, Move packages, PTB patterns, the access-gate gateway protocol and running your own relay or gateway. All repositories are public under 0BSD.
+> How to build on Meddleware's Sui and Walrus tooling: TypeScript SDKs, Move packages, PTB patterns, the access-gate gateway protocol, the read indexer, the shared libraries and the design system, and how to run your own relay, gateway or indexer. All repositories are public under 0BSD.
 
 The full text of this site in one file: [llms-full.txt](https://meddleware.dev/llms-full.txt). User documentation: [docs.meddleware.co.uk/llms.txt](https://docs.meddleware.co.uk/llms.txt).
 
@@ -8,19 +8,26 @@ The full text of this site in one file: [llms-full.txt](https://meddleware.dev/l
 
 - [Overview](https://meddleware.dev/)
 - [Getting started](https://meddleware.dev/getting-started/), [toolchain](https://meddleware.dev/getting-started/toolchain), [local development](https://meddleware.dev/getting-started/local-dev)
-- [Sui environment](https://meddleware.dev/sui/environment), [PTB patterns](https://meddleware.dev/sui/ptb-patterns)
+- [Sui overview and deployments](https://meddleware.dev/sui/), [environment](https://meddleware.dev/sui/environment), [PTB patterns](https://meddleware.dev/sui/ptb-patterns)
 
 ## Products
 
 - [Walrus Storage](https://meddleware.dev/sui/walrus-storage/): [integration](https://meddleware.dev/sui/walrus-storage/integration), [run your own upload relay](https://meddleware.dev/sui/walrus-storage/relay-self-host); SDK `@meddleware/walrus-storage-client`
-- [Sealed Storage](https://meddleware.dev/sui/sealed-storage/): [integration](https://meddleware.dev/sui/sealed-storage/integration), [policies](https://meddleware.dev/sui/sealed-storage/policies); SDK `@meddleware/sealed-storage-client`
+- [Sealed Storage](https://meddleware.dev/sui/sealed-storage/): [integration](https://meddleware.dev/sui/sealed-storage/integration), [writing policies](https://meddleware.dev/sui/sealed-storage/policies); SDK `@meddleware/sealed-storage-client`
 - [Access Gate](https://meddleware.dev/sui/access-gate/): [integration](https://meddleware.dev/sui/access-gate/integration), [gateway and wire protocol](https://meddleware.dev/sui/access-gate/gateway); SDKs `@meddleware/access-gate-client`, `@meddleware/access-gate-gateway-client`
-- Token Issuance: [overview](https://meddleware.dev/sui/onchain/token-issuance/overview), [developer guide](https://meddleware.dev/sui/onchain/token-issuance/dev-guide), [API reference](https://meddleware.dev/sui/onchain/token-issuance/api-reference); SDK `@meddleware/token-issuance-client`
+- [Token Issuance](https://meddleware.dev/sui/token-issuance/): [template and patcher](https://meddleware.dev/sui/token-issuance/template), [deploy flow](https://meddleware.dev/sui/token-issuance/deploy); SDK `@meddleware/token-issuance-client`
+- [Treasury for developers](https://meddleware.dev/sui/treasury/): [on-chain data](https://meddleware.dev/sui/treasury/data)
+- [Read indexer](https://meddleware.dev/sui/indexer): the read-only event-history API
+
+## Libraries
+
+- [Overview](https://meddleware.dev/libraries/), [wallet-adapter](https://meddleware.dev/libraries/wallet-adapter), [web-utils](https://meddleware.dev/libraries/web-utils), [frontend-config](https://meddleware.dev/libraries/frontend-config), [walrus-storage-kit](https://meddleware.dev/libraries/walrus-storage-kit), [vitepress-theme](https://meddleware.dev/libraries/vitepress-theme)
 
 ## Move packages (API references)
 
 - [access_gate](https://meddleware.dev/sui/onchain/access-gate/api-reference) ([developer guide](https://meddleware.dev/sui/onchain/access-gate/dev-guide))
 - [sealed_storage](https://meddleware.dev/sui/onchain/sealed-storage/api-reference) ([developer guide](https://meddleware.dev/sui/onchain/sealed-storage/dev-guide))
+- [token_issuance_template](https://meddleware.dev/sui/onchain/token-issuance/api-reference) ([developer guide](https://meddleware.dev/sui/onchain/token-issuance/dev-guide))
 
 ## Design system
 
