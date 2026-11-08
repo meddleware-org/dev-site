@@ -581,7 +581,7 @@ production build and the generator run from a clean checkout in CI. Not covered:
 - [x] no sensitive or operator-only content published; audience separation stated (developers here, end users on `docs.`)
 - [x] API/flag/env pages generated or version-stamped — the gateway configuration table is corrected, stamped "checked against nft-gate 0.0.22" and links the READMEs' complete tables (F8, 0.0.23, 2026-10-18)
 - [ ] registry credential inventory and rotation (F15) — `OPERATOR_TASKS.md` "Image registry credentials"
-- [ ] external review — maintainer item (`OPERATOR_TASKS.md` "Funding, grants and an external audit")
+- [ ] external review (ADR-0009 gate G4: not a launch gate; covered by redeploy and the audit pass) — maintainer item (`OPERATOR_TASKS.md` "Funding, grants and an external audit")
 
 ## Cross-project themes
 
