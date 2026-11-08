@@ -2,6 +2,10 @@
 
 ## [0.0.37] - 2026-11-08
 
+### Fixed
+
+- The Token Issuance page says the coin name stays changeable by the `MetadataCap` holder (symbol and decimals are permanent); on-chain pages come from template 1.0.14.
+
 ### Added
 
 - Pages for developers that were missing: Token Issuance (the client, the compiled template and its patcher, the publish and finalize transactions, the result and the errors that mean a coin exists), Treasury (what the console reads, its configuration, the JSON each `access_gate` object renders as, the BCS event layouts and event pruning), the read indexer (routes, parameters, response shapes, caching, freshness, running your own), and a Libraries section: `wallet-adapter` (`useWallet`, `useNetwork` and `explorerNetwork`, `selectBuiltNetwork`, `createToolWallet`, the testing entry), `web-utils`, `frontend-config` (every export and bin, the CSP profiles, `mw-sync`, `mw-network-status`, `meddlewareApp`, `vueTestConfig`), `walrus-storage-kit` and `vitepress-theme`. `AppToolShell`, the remaining components, the composables and the runtime endpoint configuration are in the design-system pages.
