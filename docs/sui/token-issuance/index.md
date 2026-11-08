@@ -40,7 +40,7 @@ The main entry loads no wasm, bytecode or zip code, so lists and forms stay ligh
 ## Describe a coin
 
 `TokenConfig` is every choice behind a token. The package, module and struct names are baked into the coin type and are permanent;
-`symbol`, `name` and `decimals` are permanent on-chain.
+`symbol` and `decimals` are permanent on-chain; the `name`, description and icon stay changeable by the `MetadataCap` holder unless the metadata is frozen.
 
 ```ts
 import { assertTokenConfig, deriveStructName, type TokenConfig } from '@meddleware/token-issuance-client'
