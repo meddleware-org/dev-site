@@ -11,6 +11,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  DO_NOT_TRACK: "1"
+
 permissions:
   contents: read
 

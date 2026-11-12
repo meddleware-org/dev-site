@@ -11,7 +11,7 @@ complete, accurate and exhaustive for them, and holds nothing irrelevant to them
 - Sui: the Move packages and their deployments, the SDKs (`access-gate-client`, `access-gate-gateway-client`, `sealed-storage-client`,
   `walrus-storage-client`, `token-issuance-client`), the gateway, the Walrus relay, the Treasury's data and the read indexer
 - Libraries: `wallet-adapter`, `web-utils`, `frontend-config`, `walrus-storage-kit`, `vitepress-theme`
-- Design system (`@meddleware/design-tokens`, `@meddleware/ui` including `AppToolShell`)
+- Design system (`@meddleware/design-tokens`, `@meddleware/ui` including `AppToolShell`, `BrandMark` and the shared favicon set)
 
 ## What this package is NOT
 
@@ -25,6 +25,12 @@ The theme is `@meddleware/vitepress-theme` (`docs/.vitepress/theme/index.ts` ext
 `docs/.vitepress/config.ts` is its `baseConfig` with this site's nav and sidebar; the site has no stylesheet of its own. `npm run test:e2e`
 builds the site and runs the shared accessibility sweep (WCAG 2.2 AA and AAA in every colour mode × season, reflow, text size, forced
 colours, keyboard) over the pages in `e2e/pages.ts` (add every new page there); `E2E_BROWSERS=all` runs five browsers (CI does).
+
+The brand work is the theme's: the favicon set and `site.webmanifest` (from `@meddleware/ui/brand/*`), the nav-bar `BrandMark` and the absence of
+web fonts come from `@meddleware/vitepress-theme` 0.0.5. The site keeps no `docs/public/favicon.*` and no icon `<link>` in `config.ts`.
+`tests/dist-brand.test.mjs` checks the built `dist/` (icon set, one SVG icon link per page, the mark in the nav bar, no `.woff2` or font preload, no
+third-party origin); it skips when `dist/` is absent unless `REQUIRE_DIST=1`, which CI sets after the build. The `docs` CSP allows only
+same-origin and `data:` images, so a page cannot use an external image. Every workflow sets `DO_NOT_TRACK: "1"`.
 
 ## Build
 
@@ -108,4 +114,5 @@ Image: `quay.io/meddleware-org/dev-site`.
 
 `docs/design-system/*.md` are hand-written, tied to the installed packages by `tests/design-system-docs.test.mjs`: a page may name only custom
 properties that exist in `@meddleware/design-tokens` and `Ui…`/`App…` components that `@meddleware/ui` exports. When a package release adds
-or renames one, update the page in the same change.
+or renames one, update the page in the same change. `brand.md` also names the files `@meddleware/ui` publishes under `brand/` and
+`components.md` every `AppToolShell` prop; the same test checks both against the installed package.

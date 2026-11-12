@@ -1,5 +1,23 @@
 # Changelog — @meddleware/dev
 
+## [0.0.38] - 2026-11-12
+
+### Added
+
+- A design-system page, "Brand mark and shared assets": the Kopimi K, `BrandMark`, the shared favicon set `@meddleware/ui/brand/*`, `brandIcons` in `@meddleware/frontend-config`, what the VitePress theme provides, the vendoring rule for third-party assets and the rules against web fonts, third-party hosts and tracking.
+
+### Changed
+
+- The company mark is in the navigation bar, and the site serves the shared favicon set and a web manifest from `@meddleware/vitepress-theme` 0.0.5; the site's own `favicon.svg` is gone and no Inter font is loaded.
+- The components page documents `AppToolShell` with the mark in the header, `docsUrl` / `devUrl` as a URL or `false`, and `pageHeading`; the frontend-config and vitepress-theme pages describe `brandIcons` and the brand files.
+- The image's Content-Security-Policy no longer allows https images (`img-src 'self' data:`); no page uses one.
+- `@meddleware/ui` ^0.1.42, `@meddleware/frontend-config` ^0.0.8, `@meddleware/vitepress-theme` ^0.0.5, `@meddleware/wallet-adapter` ^0.0.23, `@meddleware/token-issuance-client` ^0.0.16 (the samples compile against them).
+
+### Internal
+
+- `tests/dist-brand.test.mjs` checks the built site (icon set and manifest, one SVG icon link per page, the mark in the navigation bar, no font file or font preload, no third-party origin); CI runs it after the build with `REQUIRE_DIST=1`. `tests/design-system-docs.test.mjs` also ties the brand and `AppToolShell` documentation to the installed `@meddleware/ui`.
+- `DO_NOT_TRACK: "1"` in every workflow's `env`; the unit-test timeout is 60 s (the sample type-check outlasted 5 s under parallel workers).
+
 ## [0.0.37] - 2026-11-08
 
 ### Fixed

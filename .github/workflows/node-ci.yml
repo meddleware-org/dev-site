@@ -13,6 +13,9 @@ on:
   # The release workflow runs the same checks on the tagged commit.
   workflow_call:
 
+env:
+  DO_NOT_TRACK: "1"
+
 permissions:
   contents: read
 
@@ -57,6 +60,9 @@ jobs:
 
       - name: Inline scripts are allowed by the image's CSP
         run: npm run check:csp
+
+      - name: Built site has the brand icon set, no web fonts and no third-party hosts
+        run: REQUIRE_DIST=1 npx vitest run tests/dist-brand.test.mjs
 
       - name: Third-party licence notices
         run: npm run check:licenses && test -s dist/THIRD_PARTY_LICENSES

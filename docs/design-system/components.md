@@ -1,6 +1,6 @@
 ---
 title: "Components"
-description: "The @meddleware/ui Vue 3 components: the layout shell and AppToolShell, colour mode, primitives, forms, data and status components, composables, utilities and runtime endpoint configuration."
+description: "The @meddleware/ui Vue 3 components: the layout shell, AppToolShell and BrandMark, colour mode, primitives, forms, data and status components, composables, utilities and runtime endpoint configuration."
 ---
 
 # Components
@@ -61,9 +61,9 @@ Below 45em the sidebar becomes a drawer (the Popover API): give `AppSidebar` an 
 ### App tool shell
 
 `AppToolShell` is the frame every standalone Meddleware tool app shares (access gate, Walrus Storage, Sealed Storage, Token Issuance, Treasury):
-the page shell (`UiAppShell`), a dark `AppHeader` with the tool's name, the actions the tool needs next to the colour-mode control, one
-visually hidden page heading, and the `AppFooter` with the documentation and developer links and the copyright line. The tool itself is the
-default slot.
+the page shell (`UiAppShell`), a dark `AppHeader` with the company mark (`BrandMark`) and the tool's name, the actions the tool needs next to
+the colour-mode control, one visually hidden page heading, and the `AppFooter` with the documentation and developer links and the copyright
+line. The tool itself is the default slot.
 
 ```vue
 <script setup lang="ts">
@@ -81,14 +81,20 @@ import { WalletModal } from '@meddleware/wallet-adapter'
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `title` | `string` | required | The tool's name: the brand in the header and the page's visually hidden `<h1>` |
+| `title` | `string` | required | The tool's name: the brand in the header (after the mark) and the page's visually hidden `<h1>` |
 | `slug` | `string` | required | The tool's page name on the documentation sites; the default footer links are `https://docs.meddleware.co.uk/blockchain/sui/<slug>/` and `https://meddleware.dev/sui/<slug>/` |
-| `docsUrl`, `devUrl` | `string` | from `slug` | Override either footer link; an app passes its `VITE_DOCS_URL` and `VITE_DEV_URL` build values |
+| `docsUrl`, `devUrl` | `string \| false` | from `slug` | Override either footer link; an app passes its `VITE_DOCS_URL` and `VITE_DEV_URL` build values. `false` leaves that link out (a page with no such documentation) |
+| `pageHeading` | `boolean` | `true` | Whether the shell adds the visually hidden `<h1>`; `false` when the page has its own visible `h1`, so there is only one |
 | `defaultMode` | `'light' \| 'dark' \| 'system'` | `'dark'` | The colour mode a first visit gets; a saved choice always wins |
 
-Slots: the default slot (the tool), `actions` (rendered before the `ColorModeControl`) and `brand` (replaces the title text in the header).
-Because the default footer links follow the slug, a tool needs a page at `/sui/<slug>/` on this site: `walrus-storage`, `sealed-storage`,
-`access-gate`, `token-issuance` and `treasury` all have one.
+Slots: the default slot (the tool), `actions` (rendered before the `ColorModeControl`) and `brand` (replaces the mark and the title text in the
+header). Because the default footer links follow the slug, a tool needs a page at `/sui/<slug>/` on this site unless it passes `devUrl` or
+`false`: `walrus-storage`, `sealed-storage`, `access-gate`, `token-issuance` and `treasury` all have one.
+
+### Brand mark
+
+`BrandMark` draws the company mark (the Kopimi "K") in `currentColor`, `1em` tall, decorative unless given a `label`. It is in the header of
+`AppToolShell` and in the navigation bar of the documentation sites. See [Brand mark and shared assets](./brand).
 
 ## Colour mode
 

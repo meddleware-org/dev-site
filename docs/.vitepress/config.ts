@@ -61,6 +61,7 @@ const sidebar: DefaultTheme.Sidebar = {
         { text: 'Overview', link: '/design-system/' },
         { text: 'Design tokens', link: '/design-system/tokens' },
         { text: 'Components', link: '/design-system/components' },
+        { text: 'Brand mark and shared assets', link: '/design-system/brand' },
       ],
     },
   ],

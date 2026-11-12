@@ -37,14 +37,14 @@ export default baseConfig({
 A site that needs more extends the theme: `{ extends: MeddlewareTheme, enhanceApp({ app }) { … } }`; this site registers its
 `NetworkNotice` component that way.
 
-`baseConfig` sets the language (`en-GB`), clean URLs, the favicon, the browser-chrome colour (from the tokens), local search, the GitHub
+`baseConfig` sets the language (`en-GB`), clean URLs, the favicon set and web manifest of the company mark (from `@meddleware/ui/brand/*`; the site keeps no icon of its own, see [Brand mark and shared assets](/design-system/brand)), the browser-chrome colour (from the tokens), local search, the GitHub
 link, the high-contrast syntax themes and `ssr.noExternal` for `@meddleware/*`, which ship Vue components that import their own CSS.
 `themeConfig`, `vite` and `markdown` in `extra` are merged one level down.
 
 | Part | What it does |
 | --- | --- |
 | `theme.css` | maps every `--vp-*` colour onto a token role; tone blocks and badges keep body-colour text with the tone as the border; nothing is purple; keeps a focused sidebar item out from under the navigation bar (`scroll-padding-block` on `.VPSidebar`, WCAG 2.4.11) |
-| `MeddlewareLayout.vue` | the default layout plus `AppFooter` and `CopyrightLine` (a `contentinfo` landmark) |
+| `MeddlewareLayout.vue` | the default layout plus the company mark (`BrandMark`) before the title in the navigation bar, and `AppFooter` and `CopyrightLine` (a `contentinfo` landmark) |
 | `landmarks.js` | a Vite plugin that gives home, `page` and 404 pages a `<main>` and turns the mid-page doc footer into a `div`; exact edits that fail the build if VitePress changes |
 | `index.ts` | imports the tokens, the seasons and `@meddleware/ui/reset.css`, and sets the season from the calendar |
 

@@ -25,7 +25,7 @@ The lint plugins are dependencies of this package and are resolved from it, so a
 | `/stylelint` | `stylelintConfig({ tokens?, compat?, browsers?, rules? })`: standard config, no hex colours, token-only colour and `z-index`, `@double-great/stylelint-a11y`, `stylelint-no-unsupported-browser-features` |
 | `/html-validate` | `htmlValidateConfig({ elements?, rules? })`: recommended, `html-validate:a11y` and Vue, with `@meddleware/ui` components described as the native element they render |
 | `/postcss` | Autoprefixer for the repository's browserslist |
-| `/vite` | `meddlewareApp`, `themeInit`, `viteTarget`, `assertE2eOnlyInE2eMode` |
+| `/vite` | `meddlewareApp`, `themeInit`, `brandIcons`, `viteTarget`, `assertE2eOnlyInE2eMode` |
 | `/vitest` | `vueTestConfig`, `inlineMeddleware`, `installDialogShim` |
 | `/playwright` | `definePlaywrightConfig({ port, kind?, command?, browsers?, testDir?, extra? })` |
 | `/axe`, `/look`, `/a11y`, `/shots` | `expectAccessible`; `looks`, `applyLook`, `offline`, `VIEWPORTS`, `THEMES`, `SEASONS`; `defineA11ySuite`; `defineShots` |
@@ -49,8 +49,9 @@ import { meddlewareApp } from '@meddleware/frontend-config/vite'
 export default meddlewareApp({ plugins: [vue()] })
 ```
 
-`meddlewareApp({ plugins, theme?, wallet?, config? })` returns the complete Vite configuration of a tool app: the browserslist build
-target (`viteTarget()`), the colour mode and season before first paint (`themeInit`, default colour mode `dark`), the e2e-build guard
+`meddlewareApp({ plugins, theme?, wallet?, name?, config? })` returns the complete Vite configuration of a tool app: the browserslist build
+target (`viteTarget()`), the colour mode and season before first paint (`themeInit`, default colour mode `dark`), the favicon set and web manifest of
+the company mark (`brandIcons({ name })`, see [Brand mark and shared assets](/design-system/brand)), the e2e-build guard
 (`assertE2eOnlyInE2eMode`, which makes `VITE_E2E=1` outside `--mode e2e` a build error), and, unless `wallet: false`, `@meddleware/wallet-adapter`
 excluded from dependency pre-bundling (it ships TS and `.vue` source and holds the shared wallet singleton, so pre-bundling would run two
 singletons in dev). Anything else (`base`, `build.rollupOptions`, `server`, …) goes in `config`; its `build` is merged.
@@ -122,7 +123,7 @@ policy is written once; `mw-sync` checks each Dockerfile against its profile. A 
 | `console` | an administrative console | same-origin only; never framed (`frame-ancestors 'none'`) |
 | `chain` | a chain-facing tool | `connect-src 'self' https:`, `img-src … blob: https:`, `worker-src 'self' blob:` |
 | `chain-wasm` | a chain-facing tool that runs WebAssembly (Walrus, Move bytecode) | `chain`, plus `'wasm-unsafe-eval'` in `script-src` |
-| `docs` | a VitePress site | same-origin connections, https images, blob workers; the `sha256` hashes of the two inline bootstrap scripts are kept from the current policy |
+| `docs` | a VitePress site | same-origin connections, same-origin and `data:` images, blob workers; the `sha256` hashes of the two inline bootstrap scripts are kept from the current policy |
 
 `buildCsp({ wasm?, chain?, worker?, strict?, frameAncestors?, scriptHashes? })` builds a policy, `cspForProfile(name, current?)` the
 policy of a named profile (keeping the script hashes of `current` for `docs`), `scriptHashesOf(csp)` reads them, and `PROFILES` is the
@@ -141,7 +142,7 @@ The repository declares what it is in `package.json`:
 "meddleware": { "kind": "app", "csp": "chain-wasm", "lhci": true }
 ```
 
-- `kind: "app"`: `.github/dependabot.yml`, `.dockerignore`, `postcss.config.js` and `stylelint.config.js` equal the package's `templates/`.
+- `kind: "app"`: `.github/dependabot.yml`, `.dockerignore`, `postcss.config.js` and `stylelint.config.js` equal the package's `templates/`, and the app has no `public/favicon.svg`, `public/favicon.ico` or `public/apple-touch-icon.png` (the icons come from `brandIcons`; `--write` deletes them).
 - `csp`: the Dockerfile's `ARG CSP="…"` equals that profile's policy.
 - `lhci: true`: `.github/audit-allowlist.json` equals the dated allowlist for the Lighthouse CI tool chain (one expiry, reviewed together).
 

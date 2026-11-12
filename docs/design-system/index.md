@@ -9,7 +9,7 @@ The Meddleware design system is two packages, with three shared packages around 
 [`AppToolShell`](./components#app-tool-shell) and [`@meddleware/wallet-adapter`](/libraries/wallet-adapter)):
 
 - **`@meddleware/design-tokens`** — CSS custom properties, JSON token tree, and TypeScript exports. The source of truth for colours, spacing, type scale, and motion; text contrast is held at WCAG AAA (7:1) in every colour mode and season.
-- **`@meddleware/ui`**: Vue 3 component library (layout shell, `AppToolShell` for tool apps, primitives, forms, data and status components, colour-mode control) built entirely on the token layer, each component with its own CSS in a cascade layer.
+- **`@meddleware/ui`**: Vue 3 component library (layout shell, `AppToolShell` for tool apps, `BrandMark` and the shared favicon set, primitives, forms, data and status components, colour-mode control) built entirely on the token layer, each component with its own CSS in a cascade layer.
 - **[`@meddleware/web-utils`](/libraries/web-utils)**: framework-free helpers the frontends share: exact bigint amounts, dates and time zones, bounded fetch, stale-result guards, and the link helpers (`safeHref`, `safePath`, `suiExplorerUrl`).
 - **[`@meddleware/frontend-config`](/libraries/frontend-config)**: the shared lint, accessibility sweep, browser support list, Playwright, Vite and Lighthouse configuration, and the Content-Security-Policy profiles.
 - **[`@meddleware/vitepress-theme`](/libraries/vitepress-theme)**: the VitePress theme and site config the documentation sites use.
@@ -51,7 +51,7 @@ The design system is guided by three principles:
 | Panel palettes | Theme-independent (for shell variants) | `--mw-panel-dark-bg` |
 | Chaos/motion | Noise, asymmetry, transitions | `--noise-overlay`, `--transition-base` |
 
-See [Design tokens](./tokens) for full usage, and [Components](./components) for the component API.
+See [Design tokens](./tokens) for full usage, [Components](./components) for the component API, and [Brand mark and shared assets](./brand) for the company mark, the favicon set and the rules on fonts and third-party hosts.
 
 ## Light / dark mode
 

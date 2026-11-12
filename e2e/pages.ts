@@ -8,6 +8,7 @@ export const PAGES = {
   designSystem: '/design-system/',
   tokens: '/design-system/tokens',
   components: '/design-system/components',
+  brand: '/design-system/brand',
   libraries: '/libraries/',
   walletAdapter: '/libraries/wallet-adapter',
   webUtils: '/libraries/web-utils',
