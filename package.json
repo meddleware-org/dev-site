@@ -53,7 +53,7 @@
     "@meddleware/vitepress-theme": "^0.0.5"
   },
   "devDependencies": {
-    "@lhci/cli": "^0.15.1",
+    "@lhci/cli": "^0.16.1",
     "@meddleware/access-gate-client": "^0.0.13",
     "@meddleware/access-gate-gateway-client": "^0.0.22",
     "@meddleware/access-gate-sui": "^0.0.12",
