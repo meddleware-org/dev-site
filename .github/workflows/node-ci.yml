@@ -70,14 +70,6 @@ jobs:
       - name: Lighthouse (accessibility 100, best practices, SEO)
         run: npx lhci autorun
 
-      - name: Install browsers
-        run: npx playwright install --with-deps chromium firefox webkit
-
-      - name: Browser tests (five browsers, WCAG 2.2 AA and AAA, reflow, keyboard)
-        run: npm run test:e2e
-        env:
-          E2E_BROWSERS: all
-
       # External links: robust (cache + retries + accept rate-limit/partial), non-blocking on PRs so
       # transient third-party downtime can't fail an unrelated docs change. The scheduled job below
       # is the blocking external gate. Only checks http/https; skips internal file:// links.
@@ -98,6 +90,66 @@ jobs:
             docs/**/*.md
           fail: false
 
+  # The Playwright version in the lockfile, so the browser jobs use the image built for exactly that version.
+  playwright:
+    name: Playwright version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: v
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+  e2e:
+    name: Browser tests (${{ matrix.project }})
+    needs: playwright
+    runs-on: ubuntu-latest
+    # Every test on all five browser projects, as before. Each project runs in its own job at the same time, so the
+    # run takes as long as the slowest project instead of all five in a row; each job runs in Playwright's image for
+    # the locked version (the same browser builds, their system libraries installed), so none downloads browsers or
+    # apt packages.
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright.outputs.version }}-resolute
+      # Chromium's recommended shared-memory setting for containers.
+      options: --ipc=host
+    env:
+      # The image runs as root; Firefox refuses a HOME it does not own.
+      HOME: /root
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit, mobile-chrome, mobile-safari]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # A bare runner gives sans-serif, serif, monospace and system-ui to DejaVu (Ubuntu's fonts-dejavu-core 2.37), and the
+      # layout checks (reflow at 320 px, 200 % text, target sizes) were written against it. Playwright's image has no DejaVu,
+      # and its CJK font would take those names. So: the same release from upstream (checksum pinned), preferred for them.
+      - name: The runner's fonts (DejaVu 2.37)
+        run: |
+          curl -fsSL -o /tmp/dejavu.tar.bz2 https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2
+          echo "fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e846e17d7  /tmp/dejavu.tar.bz2" | sha256sum -c -
+          mkdir -p /usr/share/fonts/truetype/dejavu
+          python3 -c "import os, sys, tarfile; t = tarfile.open(sys.argv[1]); [open(os.path.join(sys.argv[2], os.path.basename(m.name)), 'wb').write(t.extractfile(m).read()) for m in t.getmembers() if m.name.endswith('.ttf')]" /tmp/dejavu.tar.bz2 /usr/share/fonts/truetype/dejavu
+          printf '%s\n' '<?xml version="1.0"?>' '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">' '<fontconfig>' \
+            '<match target="pattern"><test name="family"><string>sans-serif</string></test><edit name="family" mode="prepend_first" binding="strong"><string>DejaVu Sans</string></edit></match>' \
+            '<match target="pattern"><test name="family"><string>system-ui</string></test><edit name="family" mode="prepend_first" binding="strong"><string>DejaVu Sans</string></edit></match>' \
+            '</fontconfig>' > /etc/fonts/local.conf
+          fc-cache -f
+          for f in sans-serif system-ui serif monospace; do fc-match "$f" | grep -q DejaVu || { echo "::error::$f is $(fc-match "$f")"; exit 1; }; done
+
+      - name: Browser tests (five browsers, WCAG 2.2 AA and AAA, reflow, keyboard)
+        run: npm run test:e2e -- --project=${{ matrix.project }}
+        env:
+          E2E_BROWSERS: all
   # Scheduled / manual: blocking external-link sweep. Dead external links fail here, out of band.
   external-links:
     name: External link check (blocking, scheduled)
