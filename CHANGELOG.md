@@ -1,5 +1,11 @@
 # Changelog — @meddleware/dev
 
+## [0.0.39] - 2026-11-18
+
+### Changed
+
+- The components page describes `UiFieldHint` as it now behaves (`@meddleware/ui` 0.1.44): the help text is a `<small>` popover drawn in the top layer beside the button, so a table or dialog around it never clips it; it opens on hover, focus and press, and moves to the side of the button where it fits on screen.
+
 ## [0.0.38] - 2026-11-12
 
 ### Added

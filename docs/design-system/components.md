@@ -134,7 +134,7 @@ mode.value = 'dark'               // sets data-theme="dark" on <html>, persists 
 | `UiStatGrid` / `UiStatRow` | A description list of label/value pairs |
 | `UiStepper`, `UiMeter`, `UiPager`, `UiLiveStatus`, `UiEmptyState` | A wizard or progress list, a labelled `<meter>`, previous/next paging, an always-mounted status region, "nothing here yet" |
 | `UiDialog` | The native `<dialog>`, dismissed by Escape and a click outside; a dialog with no control in it takes a tab stop so a long one can be scrolled from the keyboard |
-| `UiFieldHint` | A "?" button whose tip opens on hover and focus and closes with Escape without moving either (WCAG 1.4.13) |
+| `UiFieldHint` | A "?" button whose help text opens on hover, on focus and when pressed (a tap too), and closes with Escape without moving either (WCAG 1.4.13). The text is a `<small>` popover drawn in the top layer beside the button, so a table or dialog around it never clips it or gains a scrollbar; it moves to the side of the button where it fits on screen. Phrasing content only |
 
 ### Copy + link pattern
 
