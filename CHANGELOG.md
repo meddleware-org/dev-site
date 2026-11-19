@@ -1,6 +1,6 @@
 # Changelog — @meddleware/dev
 
-## [Unreleased]
+## [0.0.40] - 2026-11-19
 
 - Shared packages for the storage rule (D134): nothing is stored before the visitor acts (`@meddleware/ui` remembers the colour
   mode only when asked, `wallet-adapter` keeps a chosen network for the tab only, the docs theme stores no colour mode, expired upload
