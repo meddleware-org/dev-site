@@ -1,5 +1,13 @@
 # Changelog — @meddleware/dev
 
+## [Unreleased]
+
+- CI: `HOME=/root` is set on the browser-test command only, not the whole job, so the runner no longer warns that it cannot read
+  `/root/.docker/config.json`.
+- `overrides.chrome-launcher: ^1.2.3`: Lighthouse CI (`@lhci/cli` 0.16.1, the newest) still asks for chrome-launcher 0.13, which pulls
+  the deprecated `rimraf` 3, `glob` 7 and `inflight`; 1.2.3 drops them and Lighthouse CI runs unchanged (checked locally). Remove the
+  override when `@lhci/cli` moves to chrome-launcher 1.
+
 ## [0.0.41] - 2026-11-19
 
 - **Security:** the image is built on static-server 0.1.13 (Go 1.26.11), which fixes CVE-2026-97054 (HIGH, `net/http`) found in
