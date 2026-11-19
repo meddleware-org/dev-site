@@ -49,21 +49,21 @@
   },
   "dependencies": {
     "@meddleware/design-tokens": "^0.1.13",
-    "@meddleware/ui": "^0.1.42",
-    "@meddleware/vitepress-theme": "^0.0.5"
+    "@meddleware/ui": "^0.1.45",
+    "@meddleware/vitepress-theme": "^0.0.6"
   },
   "devDependencies": {
     "@lhci/cli": "^0.16.1",
     "@meddleware/access-gate-client": "^0.0.13",
     "@meddleware/access-gate-gateway-client": "^0.0.22",
     "@meddleware/access-gate-sui": "^0.0.12",
-    "@meddleware/frontend-config": "^0.0.14",
+    "@meddleware/frontend-config": "^0.0.16",
     "@meddleware/sealed-storage-client": "^0.0.26",
     "@meddleware/sealed-storage-sui": "^0.0.11",
     "@meddleware/token-issuance-client": "^0.0.16",
     "@meddleware/token-issuance-template-sui": "^1.0.14",
-    "@meddleware/wallet-adapter": "^0.0.23",
-    "@meddleware/walrus-storage-client": "^0.0.34",
+    "@meddleware/wallet-adapter": "^0.0.25",
+    "@meddleware/walrus-storage-client": "^0.0.35",
     "@meddleware/web-utils": "^0.0.4",
     "@mysten/seal": "^1.5.2",
     "@mysten/sui": "^2.36.0",
