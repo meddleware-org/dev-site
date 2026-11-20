@@ -23,3 +23,7 @@ npm test              # unit tests
 npm run test:e2e      # builds the site and runs the shared accessibility sweep (E2E_BROWSERS=all for five browsers)
 npm run lint && npm run type-check
 ```
+
+## Open standards
+
+What this project speaks, what is planned and where you can extend it: [INTEROP.md](INTEROP.md).

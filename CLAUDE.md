@@ -129,3 +129,7 @@ Image: `quay.io/meddleware-org/dev-site`.
 properties that exist in `@meddleware/design-tokens` and `Ui…`/`App…` components that `@meddleware/ui` exports. When a package release adds
 or renames one, update the page in the same change. `brand.md` also names the files `@meddleware/ui` publishes under `brand/` and
 `components.md` every `AppToolShell` prop; the same test checks both against the installed package.
+
+## Interoperability
+
+- [INTEROP.md](INTEROP.md): the standards this project speaks, what is planned, where to extend it, and what proves each claim.
