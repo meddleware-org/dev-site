@@ -1,5 +1,11 @@
 # Changelog — @meddleware/dev
 
+## [Unreleased]
+
+- **Meddleware for developers** (copy review 2, approved 2026-11-20): a purpose-led home page; "How it fits together" (the layers every
+  tool is built from); the tools listed as "Available now", each naming what it runs on; the treasury in the footer (vitepress-theme
+  0.0.7 `footerLinks`).
+
 ## [0.0.42] - 2026-11-20
 
 - **Platform: "Standards we use"** (`/platform/standards`): every open standard the platform speaks today, what it is for, where and

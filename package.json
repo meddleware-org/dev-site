@@ -50,7 +50,7 @@
   "dependencies": {
     "@meddleware/design-tokens": "^0.1.13",
     "@meddleware/ui": "^0.1.45",
-    "@meddleware/vitepress-theme": "^0.0.6"
+    "@meddleware/vitepress-theme": "^0.0.7"
   },
   "devDependencies": {
     "@lhci/cli": "^0.16.1",
