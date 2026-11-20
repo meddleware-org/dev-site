@@ -24,7 +24,7 @@ describe.skipIf(!present && !required)('the built site (dist/)', () => {
       expect(existsSync(join(dist, f)), f).toBe(true)
     }
     const manifest = JSON.parse(readFileSync(join(dist, 'site.webmanifest'), 'utf8'))
-    expect(manifest.name).toBe('Meddleware Dev')
+    expect(manifest.name).toBe('Meddleware for developers')
     expect(manifest.icons.map((i) => i.src)).toEqual(expect.arrayContaining(['/icon-192.png', '/icon-512.png', '/favicon.svg']))
   })
 
