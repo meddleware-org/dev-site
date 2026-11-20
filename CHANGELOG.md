@@ -1,6 +1,6 @@
 # Changelog — @meddleware/dev
 
-## [Unreleased]
+## [0.0.42] - 2026-11-20
 
 - **Platform: "Standards we use"** (`/platform/standards`): every open standard the platform speaks today, what it is for, where and
   whether it is switched on, from a sweep of every repository (2026-11-20); IETF numbers checked at the RFC Editor. A change that adds a
