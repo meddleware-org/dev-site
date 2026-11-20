@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- **Platform: "Standards we use"** (`/platform/standards`): every open standard the platform speaks today, what it is for, where and
+  whether it is switched on, from a sweep of every repository (2026-11-20); IETF numbers checked at the RFC Editor. A change that adds a
+  standard adds its row in the same change (CLAUDE.md, "The platform section").
 - CI: `HOME=/root` is set on the browser-test command only, not the whole job, so the runner no longer warns that it cannot read
   `/root/.docker/config.json`.
 - `overrides.chrome-launcher: ^1.2.3`: Lighthouse CI (`@lhci/cli` 0.16.1, the newest) still asks for chrome-launcher 0.13, which pulls

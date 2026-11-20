@@ -92,6 +92,19 @@ JSON-RPC) and the real `@meddleware/*` exports. Move facts come from the importe
 Facts about a service or a library (routes, variables, defaults, versions) are read from that repository's code or README, not remembered:
 the gateway has three implementations, the indexer's caching is in its handler, the toolchain versions are the ones CI installs.
 
+## The platform section
+
+`docs/platform/` describes the platform as a whole, whatever tools it holds; it never leads with one tool or one technology (the
+workspace's `docs/operations/COPY_STANDARD.md`).
+
+- **`platform/standards.md` ("Standards we use") is the one public list of the open standards the platform speaks.** A change anywhere
+  in the platform that starts using a standard adds its row here in the same change (standard and link, what it is for, where, status);
+  one that stops removes it. Only standards the code uses are listed; built-but-off features say so. Cite IETF standards by their current
+  RFC, checked at the RFC Editor (the workspace's RFC lens, B.RFC-1).
+- **A self-hosting guide, when written, lives here and stays short**: what you would run, the order, and links. Detail belongs in each
+  repository's README (complete enough to self-host from) and in the tool's own pages on this site and the docs site (workspace
+  FU-0170).
+
 ## Content boundary (docs vs dev)
 
 | Content type | Site |

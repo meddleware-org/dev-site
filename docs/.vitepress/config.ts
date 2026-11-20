@@ -17,6 +17,8 @@ const onchainSidebar: DefaultTheme.SidebarItem[] = existsSync(onchainSidebarFile
 
 const nav: DefaultTheme.NavItem[] = [
   { text: 'Getting started', link: '/getting-started/' },
+  // The platform as a whole, whatever tools it holds: the standards it speaks (kept true change by change).
+  { text: 'Platform', items: [{ text: 'Standards we use', link: '/platform/standards' }] },
   {
     text: 'Sui',
     items: [
@@ -44,6 +46,12 @@ const nav: DefaultTheme.NavItem[] = [
 ]
 
 const sidebar: DefaultTheme.Sidebar = {
+  '/platform/': [
+    {
+      text: 'Platform',
+      items: [{ text: 'Standards we use', link: '/platform/standards' }],
+    },
+  ],
   '/getting-started/': [
     {
       text: 'Getting started',
