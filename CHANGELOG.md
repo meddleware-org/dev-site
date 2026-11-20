@@ -1,6 +1,6 @@
 # Changelog — @meddleware/dev
 
-## [Unreleased]
+## [0.0.43] - 2026-11-20
 
 - **Meddleware for developers** (copy review 2, approved 2026-11-20): a purpose-led home page; "How it fits together" (the layers every
   tool is built from); the tools listed as "Available now", each naming what it runs on; the treasury in the footer (vitepress-theme
