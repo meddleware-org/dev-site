@@ -1,44 +1,32 @@
 ---
 layout: home
-title: "Meddleware developer documentation"
-description: "SDKs, Move packages, services and design system for building on the Meddleware platform on Sui and Walrus."
+title: "Meddleware for developers"
+description: "Build with Meddleware's open tools, plug into the standards they speak, and run your own copy."
 
 hero:
   name: "Meddleware Dev"
-  text: "Build on the platform"
-  tagline: SDKs, Move packages, services, shared libraries and the design system, for developers who integrate, self-host or contribute.
+  text: "Build with open tools"
+  tagline: Packages, APIs and services for developers who integrate, self-host or contribute. Everything is open source (0BSD).
   actions:
     - theme: brand
       text: Getting started
       link: /getting-started/
     - theme: alt
-      text: Sui development
-      link: /sui/
+      text: Standards we use
+      link: /platform/standards
     - theme: alt
-      text: User docs
+      text: User guides
       link: https://docs.meddleware.co.uk
 
 features:
-  - title: Walrus Storage
-    details: Upload, read and extend blobs with @meddleware/walrus-storage-client, through the access-gated upload relay or your own. Run a relay.
-    link: /sui/walrus-storage/
-    linkText: Walrus Storage
-  - title: Sealed Storage
-    details: Encrypt to on-chain Seal policies with @meddleware/sealed-storage-client, store the ciphertext on Walrus, and write your own policy in Move.
-    link: /sui/sealed-storage/
-    linkText: Sealed Storage
-  - title: Access Gate
-    details: Create and sell NFT access passes, prove ownership to a gateway, and run the gateway that guards your own service.
-    link: /sui/access-gate/
-    linkText: Access Gate
-  - title: Token Issuance
-    details: Deploy a Sui coin from a patched Move template with @meddleware/token-issuance-client; the publish and finalize transactions, and what comes back.
-    link: /sui/token-issuance/
-    linkText: Token Issuance
-  - title: Treasury and read indexer
-    details: The on-chain objects and events the Treasury console reads, and the read-only HTTP API that serves event history.
-    link: /sui/treasury/
-    linkText: Treasury
+  - title: How it fits together
+    details: The layers every tool is built from, whatever it does and whatever it runs on.
+    link: /platform/
+    linkText: The platform
+  - title: Standards we use
+    details: Every open format and protocol the platform speaks today, what it is for and where.
+    link: /platform/standards
+    linkText: Standards we use
   - title: Shared libraries
     details: wallet-adapter, web-utils, frontend-config, walrus-storage-kit and the VitePress theme that every Meddleware app is built from.
     link: /libraries/
@@ -47,10 +35,20 @@ features:
     details: Design tokens, the Vue 3 component library and the application shell, with seasonal theming and WCAG AAA contrast.
     link: /design-system/
     linkText: Design system
-  - title: Contract layout
-    details: The Move packages, their testnet ids and the on-chain reference imported from each package.
-    link: /sui/#contract-layout
-    linkText: Contract layout
 ---
 
 <NetworkNotice />
+
+## Available now
+
+The first tools. Each runs on what its row says.
+
+| Tool | What you build with | Runs on |
+| --- | --- | --- |
+| [Walrus Storage](/sui/walrus-storage/) | upload, read and extend files with `@meddleware/walrus-storage-client`, through the gated upload relay or your own; run a relay | Walrus and Sui |
+| [Sealed Storage](/sui/sealed-storage/) | encrypt to on-chain policies with `@meddleware/sealed-storage-client`, and write your own policy | Sui |
+| [Access Gate](/sui/access-gate/) | create and sell passes, prove ownership to a gateway, and run the gateway that guards your service | Sui |
+| [Token Issuance](/sui/token-issuance/) | deploy a coin from a patched template with `@meddleware/token-issuance-client` | Sui |
+
+Also: the [treasury and read indexer](/sui/treasury/) (the objects and events behind the treasury view, and the read API) and the
+[contract layout](/sui/#contract-layout).

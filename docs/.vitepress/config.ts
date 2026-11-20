@@ -18,7 +18,7 @@ const onchainSidebar: DefaultTheme.SidebarItem[] = existsSync(onchainSidebarFile
 const nav: DefaultTheme.NavItem[] = [
   { text: 'Getting started', link: '/getting-started/' },
   // The platform as a whole, whatever tools it holds: the standards it speaks (kept true change by change).
-  { text: 'Platform', items: [{ text: 'Standards we use', link: '/platform/standards' }] },
+  { text: 'Platform', items: [{ text: 'How it fits together', link: '/platform/' }, { text: 'Standards we use', link: '/platform/standards' }] },
   {
     text: 'Sui',
     items: [
@@ -49,7 +49,10 @@ const sidebar: DefaultTheme.Sidebar = {
   '/platform/': [
     {
       text: 'Platform',
-      items: [{ text: 'Standards we use', link: '/platform/standards' }],
+      items: [
+        { text: 'How it fits together', link: '/platform/' },
+        { text: 'Standards we use', link: '/platform/standards' },
+      ],
     },
   ],
   '/getting-started/': [
@@ -149,9 +152,9 @@ const sidebar: DefaultTheme.Sidebar = {
 // directory and the repo-root `dist/` the output (the Dockerfile copies it into the static server).
 export default baseConfig({
   configUrl: import.meta.url,
-  title: 'Meddleware Dev',
-  description:
-    'SDKs, integration guides, self-hosting runbooks, shared libraries and the design system for developers building on the Meddleware platform on Sui and Walrus.',
+  title: 'Meddleware for developers',
+  description: "Build with Meddleware's open tools, plug into the standards they speak, and run your own copy.",
+  footerLinks: [{ text: 'Treasury', link: 'https://treasury.meddleware.co.uk' }],
   nav,
   sidebar,
 })
