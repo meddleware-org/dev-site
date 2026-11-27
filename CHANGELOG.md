@@ -1,5 +1,9 @@
 # Changelog — @meddleware/dev
 
+## [Unreleased]
+
+- Documentation pass (workspace documentation standard): every code file has a header and line-level comments, every declaration a doc comment; `CONTRIBUTING.md` and `AGENTS.md` are new. The two parked draft pages carry a follow-up id (FU-0208) on every `TODO` and open with their title. The files synced from `@meddleware/frontend-config` now carry that package's commented templates (`npx mw-sync --write`). The built site is identical to the previous commit's.
+
 ## [0.0.43] - 2026-11-20
 
 - **Meddleware for developers** (copy review 2, approved 2026-11-20): a purpose-led home page; "How it fits together" (the layers every

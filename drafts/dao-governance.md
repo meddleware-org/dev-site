@@ -1,19 +1,19 @@
+# DAO — Governance integration
+
 <!--
 DRAFT — not published (drafts/ is outside the VitePress srcDir).
-Status: TODO / incomplete. Parked 2026-09-28 from docs/sui/dao/index.md: the DAO is retired until
+Status: TODO(FU-0208): incomplete. Parked 2026-09-28 from docs/sui/dao/index.md: the DAO is retired until
 governance becomes relevant (dao-ui is off; no vault packages are published).
 Before re-publishing:
-- TODO: verify every package/function/event name against the published vault_governor / vault_dao /
+- TODO(FU-0208): verify every package/function/event name against the published vault_governor / vault_dao /
   vault_config sources (none of these names have been checked).
-- TODO: rewrite the client code for @mysten/sui v2 — `SuiClient`/`getFullnodeUrl` no longer exist;
+- TODO(FU-0208): rewrite the client code for @mysten/sui v2 — `SuiClient`/`getFullnodeUrl` no longer exist;
   use `SuiGrpcClient` (`@mysten/sui/grpc`) with `client.core.getObject({ include: { json: true } })`,
   `client.simulateTransaction` instead of `dryRunTransactionBlock`, and a checkpoint/event
   subscription or GraphQL events query instead of `subscribeEvent` (JSON-RPC, removed).
-- TODO: replace `tx.pure(value, type)` with the typed `tx.pure.vector('address', …)` builders.
-- TODO: re-add the DAO sidebar group, home feature card and sui/index.md row.
+- TODO(FU-0208): replace `tx.pure(value, type)` with the typed `tx.pure.vector('address', …)` builders.
+- TODO(FU-0208): re-add the DAO sidebar group, home feature card and sui/index.md row.
 -->
-
-# DAO — Governance integration
 
 [User docs →](https://docs.meddleware.co.uk/blockchain/sui/dao/) | [API reference →](https://docs.meddleware.co.uk/blockchain/sui/dao/reference)
 

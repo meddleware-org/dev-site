@@ -10,6 +10,7 @@ const root = resolve(import.meta.dirname, '..')
 const docsRoot = join(root, 'docs')
 const bins = Object.keys(JSON.parse(readFileSync(join(root, 'node_modules/@meddleware/frontend-config/package.json'), 'utf8')).bin ?? {})
 
+/** Every guide page as `[path, text]`. */
 function* markdownFiles(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name)

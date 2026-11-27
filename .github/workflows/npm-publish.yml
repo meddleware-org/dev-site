@@ -6,17 +6,21 @@ name: Publish (npm)
 # repository variable NPM_PUBLISH and gated on the `verify` job (the full CI workflow).
 # Authentication uses npm OIDC trusted publishing — no long-lived NPM_TOKEN.
 
+# Only a version tag starts a release.
 on:
   push:
     tags:
       - 'v*'
 
+# DO_NOT_TRACK asks the tools run here not to send usage data.
 env:
   DO_NOT_TRACK: "1"
 
+# Read-only by default; the publishing job asks for the identity token below.
 permissions:
   contents: read
 
+# Two jobs: CI on the tagged commit, then the publish.
 jobs:
   # The release runs exactly what CI runs (audit gate, type-check, linters, unit tests, build, licences)
   # on the tagged commit, so no check can be skipped by tagging.
@@ -24,6 +28,7 @@ jobs:
     name: Verify (CI checks)
     uses: ./.github/workflows/node-ci.yml
 
+  # Build and publish the package; it needs the CI job to have passed.
   publish-npm:
     name: npmjs (@meddleware/dev-site)
     needs: verify
@@ -32,7 +37,9 @@ jobs:
       contents: read
       id-token: write  # required for OIDC trusted publishing
     steps:
+      # Actions are pinned to a commit hash, with the version as a comment so Dependabot can update both.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Node 26, with the npm registry as the publish target.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '26'
@@ -40,26 +47,31 @@ jobs:
       # Trusted publishing (OIDC) requires npm >= 11.5.1; Node 24 ships an older npm.
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@11.20.0
+      # A clean install from the lock file.
       - name: Install dependencies
         run: npm ci
+      # The library entry and the app build.
       - name: Build
         run: npm run build
+      # The tag (without its `v`) must equal package.json's version, so a release is never published under the wrong number.
       - name: Tag matches the package version
         env:
           TAG: ${{ github.ref_name }}
         run: |
+          # The version and name from package.json; the name is URL-encoded for the registry lookup.
           VERSION=$(node -p "require('./package.json').version")
           if [ "${TAG#v}" != "$VERSION" ]; then
             echo "::error::tag ${TAG} does not match package.json version ${VERSION}"
             exit 1
           fi
 
+      # Publishing is opt-in (the repository variable), idempotent (a version already on the registry is skipped) and signed with provenance.
       - name: Publish to npmjs (OIDC, idempotent, opt-in)
         env:
           NPM_PUBLISH: ${{ vars.NPM_PUBLISH }}
         run: |
           if [ "${NPM_PUBLISH}" != "true" ]; then
-            echo "::warning::npm publish --provenanceing not configured — set repository variable NPM_PUBLISH=true and configure an npmjs trusted publisher to enable it. Skipping npm publication."
+            echo "::warning::npm publishing is not configured — set repository variable NPM_PUBLISH=true and configure an npmjs trusted publisher to enable it. Skipping npm publication."
             exit 0
           fi
           VERSION=$(node -p "require('./package.json').version")
@@ -67,6 +79,7 @@ jobs:
           ENC=$(printf '%s' "$NAME" | sed 's#/#%2f#')
           # Check the registry directly — `npm view` can transiently miss a freshly
           # first-published version and then attempt a re-publish. A 200 means it's live.
+          # A 200 from the registry means this version is already live.
           if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/${ENC}/${VERSION}")" = "200" ]; then
             echo "::notice::v${VERSION} already published to npmjs — skipping."
           else

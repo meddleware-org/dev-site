@@ -13,6 +13,7 @@ declare module '*.vue' {
   export default component
 }
 
+/** The shape of `import.meta` the samples may use. */
 interface ImportMeta {
   readonly env: Record<string, string | undefined>
 }

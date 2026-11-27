@@ -1,3 +1,5 @@
+# Continuous integration for dev-site: static checks and unit tests, the production build and what must hold of it, the browser tests on five
+# browsers, a container build and probe, and a file-system scan. The release workflows call this one, so a tag runs exactly the same checks.
 name: Node CI
 
 on:
@@ -13,41 +15,52 @@ on:
   # The release workflow runs the same checks on the tagged commit.
   workflow_call:
 
+# DO_NOT_TRACK asks the tools run here not to send usage data.
 env:
   DO_NOT_TRACK: "1"
 
+# Read-only: no job here writes to the repository.
 permissions:
   contents: read
 
+# Independent jobs; the later ones that need a build wait for the first.
 jobs:
   # PR / push gate: dependency audit + VitePress build (internal dead links fail the build) +
   # a non-blocking external link report.
+  # The production build and the checks that need it.
   build:
     name: Build + internal link check
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      # Actions are pinned to a commit hash, with the version as a comment so Dependabot can update both.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Node 26, the fleet baseline.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '26'
 
+      # A clean install from the lock file.
       - name: Install dependencies
         run: npm ci
 
+      # The npm advisory check, against the repository's allow-list (.github/audit-allowlist.json); it complements the Trivy scan below.
       - name: Audit dependencies
         run: npx mw-audit-gate
 
       - name: Shared files and deployment records are current
         run: npm run check:network && npx mw-sync --check
 
+      # vue-tsc over the sources.
       - name: Type-check
         run: npm run type-check
 
+      # The component tests.
       - name: Unit tests (on-chain id check, sample type-check, package contents)
         run: npm test
 
+      # ESLint with the accessibility and browser-compatibility rules.
       - name: Lint JS (eslint + vuejs-a11y)
         run: npm run lint:js
 
@@ -55,18 +68,22 @@ jobs:
       # step is the internal-strict link gate. The build also fails when an on-chain id typed into a
       # page differs from the clients' deployments (mw-check-onchain-ids) or when the built
       # site contains an audit page (mw-check-dist-no-audit).
+      # vite build into dist/.
       - name: Build (internal-strict dead-link detection)
         run: npm run build
 
       - name: Inline scripts are allowed by the image's CSP
         run: npm run check:csp
 
+      # The built pages carry the icon set once and load nothing from a third party (tests/dist.test.ts; REQUIRE_DIST makes a missing dist/ a failure).
       - name: Built site has the brand icon set, no web fonts and no third-party hosts
         run: REQUIRE_DIST=1 npx vitest run tests/dist-brand.test.mjs
 
+      # The licence notices file is produced and not empty.
       - name: Third-party licence notices
         run: npm run check:licenses && test -s dist/THIRD_PARTY_LICENSES
 
+      # Accessibility 100, best-practices and bundle-size budgets.
       - name: Lighthouse (accessibility 100, best practices, SEO)
         run: npx lhci autorun
 
@@ -101,6 +118,7 @@ jobs:
       - id: v
         run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
 
+  # Browser tests.
   e2e:
     name: Browser tests (${{ matrix.project }})
     needs: playwright
@@ -110,6 +128,7 @@ jobs:
     # the locked version (the same browser builds, their system libraries installed), so none downloads browsers or
     # apt packages.
     container:
+      # The container image is built and probed as the cluster runs it; it is not pushed from here.
       image: mcr.microsoft.com/playwright:v${{ needs.playwright.outputs.version }}-resolute
       # Chromium's recommended shared-memory setting for containers.
       options: --ipc=host
@@ -130,6 +149,7 @@ jobs:
       # A bare runner gives sans-serif, serif, monospace and system-ui to DejaVu (Ubuntu's fonts-dejavu-core 2.37), and the
       # layout checks (reflow at 320 px, 200 % text, target sizes) were written against it. Playwright's image has no DejaVu,
       # and its CJK font would take those names. So: the same release from upstream (checksum pinned), preferred for them.
+      # The layout checks were written against the Ubuntu runner's fonts; Playwright's image lacks them, so the same release is installed from upstream with its checksum pinned.
       - name: The runner's fonts (DejaVu 2.37)
         run: |
           curl -fsSL -o /tmp/dejavu.tar.bz2 https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2
@@ -145,6 +165,7 @@ jobs:
 
       # HOME only here: the image runs as root and Firefox refuses a HOME it does not own. Set on the command, not the job, so the
       # runner's own docker exec on the host does not read /root/.docker/config.json ("permission denied" warnings).
+      # The same browser tests on all five projects (WCAG 2.2 AA and AAA, reflow, keyboard), against the end-to-end build with its mock wallet.
       - name: Browser tests (five browsers, WCAG 2.2 AA and AAA, reflow, keyboard)
         run: HOME=/root npm run test:e2e -- --project=${{ matrix.project }}
         env:

@@ -1,20 +1,25 @@
 // The pages the browser tests visit: the home page, the section indexes, and one page of each different structure (a getting-started page,
 // the long Sui overview with its tables, a guide with code, a reference-style page with wide tables, the design-system pages, a library page).
+/** The pages the browser tests visit, by name. */
 export const PAGES = {
+  // The platform's own pages first.
   home: '/',
   gettingStarted: '/getting-started/',
   toolchain: '/getting-started/toolchain',
   localDev: '/getting-started/local-dev',
+  // The design-system pages.
   designSystem: '/design-system/',
   tokens: '/design-system/tokens',
   components: '/design-system/components',
   brand: '/design-system/brand',
+  // The library pages.
   libraries: '/libraries/',
   walletAdapter: '/libraries/wallet-adapter',
   webUtils: '/libraries/web-utils',
   frontendConfig: '/libraries/frontend-config',
   walrusStorageKit: '/libraries/walrus-storage-kit',
   vitepressTheme: '/libraries/vitepress-theme',
+  // The Sui pages, one group per tool.
   sui: '/sui/',
   environment: '/sui/environment',
   ptbPatterns: '/sui/ptb-patterns',

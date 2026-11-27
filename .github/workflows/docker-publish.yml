@@ -1,9 +1,11 @@
 name: Publish (Docker)
+# Only a version tag starts a release.
 on:
   push:
     tags:
       - "v*"
 
+# DO_NOT_TRACK asks the tools run here not to send usage data; IMAGE is the repository name the registries use.
 env:
   IMAGE: dev-site
   DO_NOT_TRACK: "1"
@@ -13,54 +15,75 @@ env:
 #   - @meddleware/dev-site to npmjs (OIDC trusted publishing, NPM_PUBLISH opt-in gate)
 #   - quay.io/meddleware-org/dev-site Docker image (multi-arch, cosign, provenance)
 # No VITE_* build args — the dev site has no per-network build config.
+# Read-only by default; the jobs that sign ask for more, below.
 permissions:
   contents: read
 
 jobs:
   # The release runs exactly what CI runs (audit gate, type-check, lint, unit tests, build with the on-chain id check, licences) on the tagged commit,
   # so no check can be skipped by tagging.
+  # Reuses the CI workflow, so a release can never be cut from a commit CI has not passed.
   verify:
     name: Verify (CI checks)
     uses: ./.github/workflows/node-ci.yml
 
+  # Each architecture is built on its own native runner, so no emulation is involved; each pushes a build-intermediate tag of its own (<sha>-<arch>), never a release tag.
   build-docker-amd64-public:
     name: Docker amd64 (quay.io + Docker Hub)
+    # The standard runner.
     runs-on: ubuntu-latest
+    # Publishing starts only when the CI job has passed.
     needs: verify
     permissions:
       contents: read
     steps:
+      # Actions are pinned to a commit hash, with the version as a comment so Dependabot can update both.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The multi-architecture builder.
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
+      # Registry credentials come from repository secrets and exist only in these steps.
       - name: Log in to quay.io
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
+          # The first public registry.
           registry: quay.io
+          # Credentials come from repository secrets.
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_TOKEN }}
 
+      # The second public registry.
       - name: Log in to Docker Hub
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
+          # The second public registry.
           registry: docker.io
+          # Credentials come from repository secrets.
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build for this architecture and push the intermediate tag to both registries, with a build cache per architecture.
       - name: Build and push (linux/amd64)
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
+          # The build context is the repository root (the .dockerignore keeps secrets and build output out of it).
           context: .
+          # This build's architecture.
           platforms: linux/amd64
+          # Push to both registries.
           push: true
+          # The build-intermediate tags (<sha>-<arch>): never releases, only the inputs of the merge.
           tags: |
             quay.io/${{ vars.QUAY_NAMESPACE }}/${{ env.IMAGE }}:${{ github.sha }}-amd64
             docker.io/${{ vars.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE }}:${{ github.sha }}-amd64
+          # The build cache lives in the Actions cache, separately per architecture.
           cache-from: type=gha,scope=amd64-public
           cache-to: type=gha,scope=amd64-public,mode=max
 
+  # The arm64 build, on an arm64 runner.
   build-docker-arm64-public:
     name: Docker arm64 (quay.io + Docker Hub)
+    # The arm64 build runs on a native arm64 runner (no emulation).
     runs-on: ubuntu-24.04-arm
     needs: verify
     permissions:
@@ -83,26 +106,36 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # The same for arm64.
       - name: Build and push (linux/arm64)
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
+          # Same context, now for arm64.
           context: .
+          # This build's architecture.
           platforms: linux/arm64
+          # Push the intermediate tags to both registries.
           push: true
+          # The same for arm64.
           tags: |
             quay.io/${{ vars.QUAY_NAMESPACE }}/${{ env.IMAGE }}:${{ github.sha }}-arm64
             docker.io/${{ vars.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE }}:${{ github.sha }}-arm64
+          # The same for arm64.
           cache-from: type=gha,scope=arm64-public
           cache-to: type=gha,scope=arm64-public,mode=max
 
+  # Join the two images into one multi-architecture manifest, scan it, sign it and attest it; this is the image that is released.
   merge-docker-public:
     name: Merge + sign (quay.io + Docker Hub)
+    # The merge waits for both architectures.
     needs: [build-docker-amd64-public, build-docker-arm64-public]
     runs-on: ubuntu-latest
+    # The merged digest, for the mirror job.
     outputs:
       digest: ${{ steps.merge.outputs.digest }}
     permissions:
       contents: read
+      # The identity token Sigstore's keyless signing needs, and permission to write attestations.
       id-token: write
       attestations: write
     steps:
@@ -122,19 +155,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Semantic-version tags (`1.2.3` and `1.2`); `latest` only for a stable tag.
       - name: Compute final tags and labels
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
+          # Both public repositories get the same tags.
           images: |
             quay.io/${{ vars.QUAY_NAMESPACE }}/${{ env.IMAGE }}
             docker.io/${{ vars.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+          # `latest` only for a stable (non-pre-release) tag.
           flavor: |
             latest=auto
 
+      # Create each release tag as one manifest over the two architectures' images, and read the merged digest.
       - name: Merge multi-arch manifests
         id: merge
         env:
@@ -163,6 +200,7 @@ jobs:
           DIGEST=$(docker buildx imagetools inspect "${PRIMARY}" --format '{{.Manifest.Digest}}')
           echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
 
+      # Critical and high findings with a fix fail the release.
       - name: Scan the published image (fail on fixable CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -172,8 +210,10 @@ jobs:
           ignore-unfixed: true
           version: v0.74.0
 
+      # The signing tool, pinned.
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
+      # Keyless signatures over the merged digest, written to both registries.
       - name: Sign images (keyless)
         env:
           DIGEST: ${{ steps.merge.outputs.digest }}
@@ -184,6 +224,7 @@ jobs:
           cosign sign --yes "docker.io/${DOCKERHUB_NS}/${IMAGE}@${DIGEST}"
 
       # SBOM of the published image, attached as a signed cosign attestation (SPDX JSON).
+      # The software bill of materials of the published image (SPDX).
       - name: Generate SBOM
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
@@ -192,6 +233,7 @@ jobs:
           output-file: sbom.spdx.json
           upload-artifact: false
 
+      # The bill of materials, attached as a signed attestation.
       - name: Attest SBOM (keyless)
         env:
           DIGEST: ${{ steps.merge.outputs.digest }}
@@ -201,18 +243,22 @@ jobs:
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "quay.io/${QUAY_NS}/${IMAGE}@${DIGEST}"
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "docker.io/${DOCKERHUB_NS}/${IMAGE}@${DIGEST}"
 
+      # Where and how the image was built, attested through GitHub.
       - name: Attest build provenance (quay.io)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: quay.io/${{ vars.QUAY_NAMESPACE }}/${{ env.IMAGE }}
           subject-digest: ${{ steps.merge.outputs.digest }}
+          # The attestation is stored in the registry next to the image.
           push-to-registry: true
 
+      # The same attestation for the second registry.
       - name: Attest build provenance (Docker Hub)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: docker.io/${{ vars.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE }}
           subject-digest: ${{ steps.merge.outputs.digest }}
+          # The same for the second registry.
           push-to-registry: true
 
       - name: Summary
@@ -223,22 +269,28 @@ jobs:
   # <image>:<tag> (workspace docs/images/IMAGES.md, "Consensus"), so this job copies the image
   # that merge-docker-public pushed and signed instead of building it again. Best-effort: it fails
   # harmlessly until the PRIVATE_REGISTRY_* credentials exist.
+  # Promote the published image to the self-hosted registry by digest (no rebuild), so all three registries return the same digest. Best effort: it may fail until the registry credentials exist.
   mirror-private:
     name: Mirror (self-hosted registry)
     runs-on: ubuntu-latest
+    # The mirror copies what the merge job published.
     needs: [merge-docker-public]
+    # A mirror failure never fails the release: it is retried by re-running the job.
     continue-on-error: true
     permissions:
       contents: read
     steps:
+      # The signing tool, pinned.
       - name: Install cosign
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
+      # The OCI client used to copy the signatures and attestations (referrers) along with the image.
       - name: Install oras
         uses: oras-project/setup-oras@5e2f2482b30b0cb3e14e67f89a80c88c659a7c63 # v2.0.3
         with:
           version: 1.3.4
 
+      # Credentials for the self-hosted registry (optional secrets).
       - name: Log in to self-hosted registry
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
@@ -246,6 +298,7 @@ jobs:
           username: ${{ secrets.PRIVATE_REGISTRY_USERNAME }}
           password: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
 
+      # The same tags as the public registries.
       - name: Compute tags
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
@@ -257,6 +310,7 @@ jobs:
           flavor: |
             latest=auto
 
+      # Copy the manifest byte for byte (so the digest is unchanged), copy the referrers, then verify the digest and the signature on the mirror.
       - name: Copy the published image (same digest) and verify
         env:
           DIGEST: ${{ needs.merge-docker-public.outputs.digest }}
@@ -299,6 +353,7 @@ jobs:
             "${PRIVATE_REGISTRY}/${PRIVATE_NAMESPACE}/${IMAGE}@${DIGEST}" > /dev/null
 
       - name: Summary
+        # The summary is written even when the copy failed.
         if: always()
         env:
           DIGEST: ${{ needs.merge-docker-public.outputs.digest }}

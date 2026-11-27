@@ -1,10 +1,11 @@
+// Tests of the hand-written pages: wording that keeps developer and maintainer language right, links to the user documentation, and the structure of each guide.
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const docs = join(import.meta.dirname, '..', 'docs')
 
-// Every hand-written page: not the audit notes, not the generated on-chain tree, not VitePress's own files.
+/** Every hand-written page under `dir`: not the audit notes, not the generated on-chain tree, not VitePress's own files. */
 function pages(dir = docs, out = []) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, e.name)
@@ -19,6 +20,7 @@ const all = pages().map((p) => ({ rel: relative(docs, p).split(sep).join('/'), t
 const prose = (text) => text.replace(/```[\s\S]*?```/g, '')
 
 describe('the hand-written pages', () => {
+  // Finds the pages.
   it('finds the pages', () => {
     expect(all.length).toBeGreaterThan(30)
   })
@@ -29,35 +31,41 @@ describe('the hand-written pages', () => {
     expect(front).toMatch(/^description: \S/m)
   })
 
+  // Never claims in prose that mainnet is live (the notice component says it, from the deployment records).
   it('never claims in prose that mainnet is live (the notice component says it, from the deployment records)', () => {
     const claim = /mainnet[^.\n]{0,40}\b(is|are) (now )?(live|open|available)|live on (sui )?mainnet|(runs?|running) on mainnet/i
     const hits = all.filter((p) => claim.test(p.text.replace(/<NetworkNotice \/>/g, ''))).map((p) => p.rel)
     expect(hits).toEqual([])
   })
 
+  // Uses the notice only on the home page, getting started and the Sui overview.
   it('uses the notice only on the home page, getting started and the Sui overview', () => {
     const using = all.filter((p) => p.text.includes('<NetworkNotice')).map((p) => p.rel).sort()
     expect(using).toEqual(['getting-started/index.md', 'index.md', 'sui/index.md'])
   })
 
+  // Keeps unpublished-work wording and the wrong spelling off the pages.
   it('keeps unpublished-work wording and the wrong spelling off the pages', () => {
     const banned = [/white-?label|TODO|guidance still to come|coming soon|more blockchains/i, /MeddleWare/]
     const hits = all.flatMap((p) => banned.flatMap((re) => (re.test(prose(p.text)) ? [`${p.rel}: ${re.exec(prose(p.text))?.[0]}`] : [])))
     expect(hits).toEqual([])
   })
 
+  // Says "gate owner", not "operator", for whoever owns a gate (operator is for whoever runs infrastructure).
   it('says "gate owner", not "operator", for whoever owns a gate (operator is for whoever runs infrastructure)', () => {
     const owner = /gate[’']?s? operators?|operators? of (a|the) gate|operator[’']s (gate|pass|wallet|price)|operator (who|that) (created|owns|sells|sold)/i
     const hits = all.filter((p) => owner.test(prose(p.text))).map((p) => p.rel)
     expect(hits).toEqual([])
   })
 
+  // Has no page for other blockchains.
   it('has no page for other blockchains', () => {
     expect(all.map((p) => p.rel)).not.toContain('blockchain/index.md')
   })
 })
 
 describe('the navigation and the sidebar', () => {
+  // Links every hand-written page.
   it('links every hand-written page', async () => {
     const config = (await import('../docs/.vitepress/config.ts')).default
     const sidebar = JSON.stringify(config.themeConfig?.sidebar ?? {})
@@ -68,12 +76,14 @@ describe('the navigation and the sidebar', () => {
     expect(missing).toEqual([])
   })
 
+  // Has no placeholder entry.
   it('has no placeholder entry', async () => {
     const config = (await import('../docs/.vitepress/config.ts')).default
     const text = JSON.stringify(config.themeConfig ?? {})
     expect(text).not.toMatch(/"link":"\/blockchain\/|Coming soon|operator/i)
   })
 
+  // Links only to pages that exist.
   it('links only to pages that exist', async () => {
     const config = (await import('../docs/.vitepress/config.ts')).default
     const links = [...JSON.stringify(config.themeConfig ?? {}).matchAll(/"link":"(\/[^"#]*)"/g)].map((m) => m[1])

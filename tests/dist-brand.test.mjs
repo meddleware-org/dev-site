@@ -12,6 +12,7 @@ const required = process.env.REQUIRE_DIST === '1'
 const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]))
 
 describe.skipIf(!present && !required)('the built site (dist/)', () => {
+  // Exists when it is required.
   it('exists when it is required', () => {
     expect(present, 'dist/ is missing: run `npm run build` first').toBe(true)
   })
@@ -19,6 +20,7 @@ describe.skipIf(!present && !required)('the built site (dist/)', () => {
   const files = present ? walk(dist) : []
   const pages = files.filter((f) => f.endsWith('.html'))
 
+  // Ships the favicon set and the web manifest.
   it('ships the favicon set and the web manifest', () => {
     for (const f of ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest']) {
       expect(existsSync(join(dist, f)), f).toBe(true)
@@ -28,6 +30,7 @@ describe.skipIf(!present && !required)('the built site (dist/)', () => {
     expect(manifest.icons.map((i) => i.src)).toEqual(expect.arrayContaining(['/icon-192.png', '/icon-512.png', '/favicon.svg']))
   })
 
+  // Has exactly one svg icon link, the manifest and the touch icon on every page.
   it('has exactly one svg icon link, the manifest and the touch icon on every page', () => {
     expect(pages.length).toBeGreaterThan(10)
     for (const page of pages) {
@@ -39,18 +42,21 @@ describe.skipIf(!present && !required)('the built site (dist/)', () => {
     }
   })
 
+  // Shows the mark in the nav bar.
   it('shows the mark in the nav bar', () => {
     const html = readFileSync(join(dist, 'index.html'), 'utf8')
     const title = html.slice(html.indexOf('VPNavBarTitle'))
     expect(title.slice(0, title.indexOf('</a>'))).toMatch(/<svg class="mw-brand-mark[^"]*"[^>]*aria-hidden="true"/)
   })
 
+  // Has no web fonts and no font preload.
   it('has no web fonts and no font preload', () => {
     expect(files.filter((f) => /\.(woff2?|ttf|otf|eot)$/i.test(f))).toEqual([])
     for (const page of pages) expect(readFileSync(page, 'utf8'), page).not.toMatch(/<link[^>]*as="font"/)
     for (const css of files.filter((f) => f.endsWith('.css'))) expect(readFileSync(css, 'utf8'), css).not.toMatch(/@font-face/)
   })
 
+  // Loads no script, style, image or font from another origin.
   it('loads no script, style, image or font from another origin', () => {
     const external = /^(?:https?:)?\/\//
     for (const page of pages) {

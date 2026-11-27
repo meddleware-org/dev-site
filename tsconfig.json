@@ -1,13 +1,20 @@
+// TypeScript configuration for the theme and the VitePress configuration. `npm run type-check` (tsc) reads it; the pages are Markdown and are not checked here.
 {
   "compilerOptions": {
+    // Modern output; VitePress and Vite decide what is down-levelled.
     "target": "ES2022",
     "module": "ESNext",
+    // Resolve imports as a bundler does (package `exports`, extensionless paths).
     "moduleResolution": "Bundler",
+    // The strict family of checks.
     "strict": true,
     "esModuleInterop": true,
+    // Skip checking the packages' declaration files.
     "skipLibCheck": true,
+    // `network.json` is imported as data.
     "resolveJsonModule": true,
     "types": ["node"]
   },
+  // The declarations and the VitePress theme and configuration.
   "include": ["env.d.ts", "docs/.vitepress/**/*.ts", "docs/.vitepress/**/*.vue"]
 }

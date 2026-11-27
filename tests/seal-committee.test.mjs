@@ -1,3 +1,4 @@
+// Tests that the Seal key-server ids on the Sealed Storage page equal the list kept in package.json, and that each committee is labelled for what it is.
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -26,17 +27,20 @@ const MAINNET = [
 ]
 
 describe('the Seal key-server ids of the Sealed Storage page', () => {
+  // Are exactly the ids allowed by the id check, each with a reason.
   it('are exactly the ids allowed by the id check, each with a reason', () => {
     expect(onPage.sort()).toEqual([...listed].sort())
     for (const e of pkg.meddleware.onchainIds.otherIds) expect(e.reason).toMatch(/\S/)
   })
 
+  // Name the testnet committee in the table and the sample, and the three mainnet servers in their own table.
   it('name the testnet committee in the table and the sample, and the three mainnet servers in their own table', () => {
     for (const id of TESTNET) expect(page.split(id).length - 1, id).toBeGreaterThanOrEqual(2) // table + sample
     for (const id of MAINNET) expect(page.split(id).length - 1, id).toBe(1)
     expect(listed.sort()).toEqual([...TESTNET, ...MAINNET].sort())
   })
 
+  // Label the mainnet committee as not yet used.
   it('label the mainnet committee as not yet used', () => {
     expect(page).toMatch(/\*\*Mainnet, not yet used: no mainnet `sealed_storage` deployment\.\*\*/)
     // and the mainnet ids come after that label, never before it

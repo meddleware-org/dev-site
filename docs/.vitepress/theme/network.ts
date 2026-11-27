@@ -13,10 +13,15 @@ const isLive = (net: { status?: string } | undefined): boolean => net?.status ==
 
 /** The one sentence the site uses for where the tools run. A network that is only partly deployed counts as not live yet. */
 export function networkSentence(record: NetworkRecord): string {
+  // Whether each network is live.
   const testnet = isLive(record.testnet)
   const mainnet = isLive(record.mainnet)
+  // Both.
   if (testnet && mainnet) return 'Live on Sui testnet and mainnet.'
+  // Testnet only.
   if (testnet) return 'Live on Sui testnet; mainnet is coming.'
+  // Mainnet only (a partly deployed testnet counts as not live).
   if (mainnet) return 'Live on Sui mainnet.'
+  // Neither.
   return 'Not live on any Sui network yet.'
 }

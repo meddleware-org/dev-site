@@ -6,5 +6,5 @@ opens with a status comment listing what must be verified or rewritten before it
 
 | File | Future page | Status |
 | --- | --- | --- |
-| [dao-governance.md](dao-governance.md) | `sui/dao/` — governance PTBs | TODO: DAO retired; names unverified; pre-v2 SDK code |
-| [mwsui-vault.md](mwsui-vault.md) | `sui/vault/` — mwSUI vault integration | TODO: packages unpublished; snippets unverified |
+| [dao-governance.md](dao-governance.md) | `sui/dao/` — governance PTBs | TODO(FU-0208): DAO retired; names unverified; pre-v2 SDK code |
+| [mwsui-vault.md](mwsui-vault.md) | `sui/vault/` — mwSUI vault integration | TODO(FU-0208): packages unpublished; snippets unverified |

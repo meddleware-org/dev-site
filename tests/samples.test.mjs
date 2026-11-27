@@ -16,6 +16,7 @@ const root = resolve(import.meta.dirname, '..')
 const docsRoot = join(root, 'docs')
 const SKIP = /^<!--\s*sample:\s*skip\s*[—-]\s*(\S.*?)\s*-->$/
 
+/** Every guide page's path under docs/, skipping generated and audit trees. */
 function* markdownFiles(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name)
@@ -55,6 +56,7 @@ export function wrapSample(code) {
   return `${code.slice(0, lastImportEnd)}; async function __sample() {${code.slice(lastImportEnd)}\n}\nexport {}\n`
 }
 
+/** Compile every sample block as its own module against the installed packages and return the diagnostics, each pointing at its Markdown line. */
 function checkSamples(samples) {
   const virtual = new Map(samples.map((s) => [s.path, s.source]))
   const options = {
@@ -90,6 +92,7 @@ function checkSamples(samples) {
 }
 
 describe('extractTsBlocks', () => {
+  // Finds ts fences, their first code line and a skip reason.
   it('finds ts fences, their first code line and a skip reason', () => {
     const md = ['# t', '', '```ts', 'const a = 1', '```', '', '<!-- sample: skip — a type sketch -->', '', '```ts', 'interface X {}', '```', '```bash', 'ls', '```'].join('\n')
     expect(extractTsBlocks(md)).toEqual([
@@ -100,6 +103,7 @@ describe('extractTsBlocks', () => {
 })
 
 describe('wrapSample', () => {
+  // Keeps line numbers and allows top-level await after the imports.
   it('keeps line numbers and allows top-level await after the imports', () => {
     const code = "import { a } from 'x'\nimport { b } from 'y'\nconst r = await a(b)"
     const out = wrapSample(code)
@@ -109,6 +113,7 @@ describe('wrapSample', () => {
 })
 
 describe('the checker', () => {
+  // Reports a wrong call, naming the Markdown line.
   it('reports a wrong call, naming the Markdown line', () => {
     const problems = checkSamples([
       { name: 'x.md', line: 10, path: join(root, '__sample_bad.ts'), source: wrapSample("import { buildAccessProof } from '@meddleware/access-gate-gateway-client'\nawait buildAccessProof({ address: 'a' })") },
@@ -127,14 +132,17 @@ describe('the guides\' ts samples compile against the installed packages', () =>
     }
   }
 
+  // Finds the samples.
   it('finds the samples', () => {
     expect(samples.length).toBeGreaterThan(20)
   })
 
+  // Type-checks every sample.
   it('type-checks every sample', () => {
     expect(checkSamples(samples)).toEqual([])
   })
 
+  // Keeps the unchecked samples few.
   it('keeps the unchecked samples few', () => {
     expect(skipped.length).toBeLessThanOrEqual(6)
   })
