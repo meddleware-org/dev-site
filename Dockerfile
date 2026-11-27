@@ -24,7 +24,7 @@ ARG CSP
 RUN npx mw-check-csp-inline "${CSP}" dist
 
 # ── runtime stage ─────────────────────────────────────────────────────────────
-FROM quay.io/meddleware-org/static-server:0.1.13@sha256:0952b3c64403ccd340827a13f2a4d96beed756a06edb6d5addac7697864e5b5d
+FROM quay.io/meddleware-org/static-server:0.1.14@sha256:27f3d7a61f19a95b3abfc991d813a178bc1995a15e60f16a35a8a5a6dda4ce8e
 ARG CSP
 ENV CONTENT_SECURITY_POLICY="${CSP}"
 
